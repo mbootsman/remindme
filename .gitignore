@@ -1,0 +1,5 @@
+php/src/vendor/*
+php/src/carbontest.php
+php/src/composer.phar
+php/src/env.php
+php/src/filetest.php
