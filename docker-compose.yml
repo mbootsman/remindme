@@ -1,10 +1,23 @@
-version: '3'
+version: "3"
 services:
-    php-apache-environment:
-        container_name: php-apache
-        image: php:8.1-apache
-        user: "1000:1000"
-        volumes:
-            - ./php/src:/var/www/html/
-        ports:
-            - 8000:80
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports: 
+      - "8080:80"
+    networks:
+      - internal
+    volumes:
+      - ./php/src/:/var/www/html/
+      - ./logs/nginx:/var/log/nginx/
+  php:
+    image: php:fpm-alpine
+    networks:
+      - internal
+    volumes:
+      - ./php/src/:/var/www/html/
+      - ./logs/php.log:/var/log/fpm-php.www.log
+networks:
+  internal:
+    driver: bridge
