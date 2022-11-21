@@ -1,44 +1,43 @@
 <?php
 
 class Notifications {
-    private $environment;
-
-    // include instance and API parameters
-    function __construct() {
-
-        include("env.php");
-        $this->environment = $env; // variable in env.php is called $env
-    }
-
-    function getEnvironment() {
-        return $this->environment;
-    }
+    private $enivronment;
 
     function getLastSeenMentionId() {
-       $mention_file_file_id = false;
+        $mention_file_file_id = false;
+        $environment = Helper::getEnvironment();
 
         // Check if file exists
-        if (file_exists($this->environment['last_mention_file'])) {
-            echo "File exists: " . $this->environment['last_mention_file'] . "<br />";
+        if (file_exists($environment['last_mention_file'])) {
+            echo "File exists: " . $environment['last_mention_file'] . "<br />";
 
-            if ((filesize($this->environment['last_mention_file'])) > 0) {
-                $mention_file_file_id = file_get_contents($this->environment['last_mention_file']);
+            if ((filesize($environment['last_mention_file'])) > 0) {
+                $mention_file_file_id = file_get_contents($environment['last_mention_file']);
                 if ($mention_file_file_id) {
                     echo "Found mention ID in file: " . $mention_file_file_id . "<br />";
                     return $mention_file_file_id;
                 }
             } else {
-                echo "File is empty<br />";
+                // echo "File is empty<br />";
                 return false;
             }
         } else {
-            echo "File does not exist";
+            // echo "File does not exist";
             return false;
         }
     }
 
-    function setLastSeenMentionId() {
+    function setLastSeenMentionId($mentionid) {
+        $environment = Helper::getEnvironment();
+        // Check if file exists
+        if (file_exists($environment['last_mention_file'])) {
+            echo "File exists for writing: " . $environment['last_mention_file'] . "<br />";
 
+            file_put_contents($environment['last_mention_file'], $mentionid);
+        } else {
+            // echo "File does not exist";
+            return false;
+        }
     }
 
     function getMentions() {
@@ -50,7 +49,7 @@ class Notifications {
          * @return array with not yet processed mention objects or false if no mentions found
          * 
          */
-
+        $environment = Helper::getEnvironment();
         $mentions = array();
         // Add request parameters
 
@@ -61,11 +60,9 @@ class Notifications {
             "exclude_types" => array("follow", "favourite", "reblog", "poll", "follow_request"),
             "since_id" => $since_id
         );
-        
+
         // Convert exclude_types array to HTTP query so we can use it in the GET request
         $parameters_http_query = http_build_query($parameters);
-
-        $environment = $this->getEnvironment();
 
         // Prepare cURL resource
         $curl_handle = curl_init($environment['server'] . $environment['uri_notifications']);
