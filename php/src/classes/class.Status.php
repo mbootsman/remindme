@@ -55,11 +55,13 @@ class Status {
          */
         // var_dump($parameters);
         $result = Helper::doCurlPOSTRequest($parameters);
-        var_dump($result);
+
         // Check if we got JSON back
         if (is_string($result) && is_array(json_decode($result, true))) {
             //succesfully posted a reminder. Let's write the mention id to our last_mention_id file
             Helper::setLastSeenMentionId($parameters["mention_id"]);
+
+            // TODO if we have a scheduled_at result send a confirmation to user that the reminder is set.
         }
     }
 

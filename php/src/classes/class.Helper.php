@@ -77,9 +77,9 @@ class Helper {
 
         // convert array to JSON
         $status_data_json = json_encode($parameters["status_parameters"]);
-        echo "<br/>";
-        var_dump($status_data_json);
-        
+        //echo "<br/>";
+        //var_dump($status_data_json);
+
         // Prepare new cURL resource
         $crl = curl_init(self::getEnvironment()["server"] . $api_uri);
         curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
@@ -109,7 +109,7 @@ class Helper {
             curl_close($crl);
             die();
         } else {
-            echo '<pre>' . print_r(json_decode($result), true) . '</pre>';
+            // echo '<pre>' . print_r(json_decode($result), true) . '</pre>';
             // Close cURL session handle
             curl_close($crl);
         }
@@ -119,7 +119,7 @@ class Helper {
     public static function setLastSeenMentionId($mentionid) {
         // Check if file exists
         if (file_exists(self::getEnvironment()['last_mention_file'])) {
-            echo "File exists for writing: " . self::getEnvironment()['last_mention_file'] . "<br />";
+            // echo "File exists for writing: " . self::getEnvironment()['last_mention_file'] . "<br />";
 
             file_put_contents(self::getEnvironment()['last_mention_file'], $mentionid);
         } else {
@@ -145,7 +145,7 @@ class Helper {
 
     function getScheduledatDate($str, $mention) {
         /**
-         * Try to get relative date daelta from string $str
+         * Try to get relative$scheduledate daelta from string $str
          * 
          * @param string $str Contains the content of the toot
          * 
@@ -159,9 +159,9 @@ class Helper {
             'twenty' => '20', 'thirty' => '30', 'forty' => '40', 'fifty' => '50', 'sixty' => '60', 'seventy' => '70', 'eighty' => '80', 'ninety' => '90',
             'hundred' => '100', 'thousand' => '1000', 'million' => '1000000', 'billion' => '1000000000'
         );
-
+        // echo "\$str = " . $str . "<br />";
         preg_match_all('#((?:^|and|,| |-)*(\b' . implode('\b|\b', array_keys($keys)) . '\b))+#i', $str, $tokens);
-        // print_r($tokens); exit;
+        // print_r($tokens);
         $tokens = $tokens[0];
         usort($tokens, array($this, 'strlenSort'));
 
@@ -169,7 +169,7 @@ class Helper {
             $token = trim(strtolower($token));
             preg_match_all('#(?:(?:and|,| |-)*\b' . implode('\b|\b', array_keys($keys)) . '\b)+#', $token, $words);
             $words = $words[0];
-            //print_r($words);
+            // print_r($words);
             $num = '0';
             $total = 0;
             foreach ($words as $word) {
@@ -191,38 +191,47 @@ class Helper {
             // echo "<br />$token : $total<br />";
             $str = preg_replace("#\b$token\b#i", number_format($total), $str);
         }
+
         // printf("<br />Right now is %s<br/>", Carbon::now()->toDateTimeString());
         // Strip HMTL 
         // Remove all mentions (@....)
         // Trim leading spaces
         // Remove some omit words
-        $omit_words = array('in ');
+        $omit_words = array('in');
 
         $content = ltrim(preg_replace('/(\s+|^)@\S+/', '', strip_tags($str)));
-        $content_array = array_values(array_filter(str_ireplace($omit_words, '', explode(" ", $content))));
+        // echo "content after @ removal: $content<br />";
+        // $content = "in 1 minute";
+        $content_array = array_diff(explode(' ', $content), $omit_words);
+
         // print_r($content_array);
         $content = implode(' ', $content_array);
 
         // Time to try to convert this to a datetime thingy
         try {
-            $date = Carbon::parse($content);
+            $scheduledate = Carbon::parse($content);
+            // printf("<br />\$scheduledate is %s<br/>", $scheduledate);
+            // we have a $scheduledate, but we need the date used as the mention created_at as a base
+            // get the original mention datetime
+            $mentiondate = new Carbon($mention->created_at);
+            // printf("<br />Mention created at %s<br/>", $mentiondate);
+
+            // get the diff in seconds between now() and the parsed $scheduledate based upon the content of the toot
+            $diffinseconds = Carbon::now()->diffInSeconds($scheduledate);
+            // printf("Diff in seconds: %s<br/>", $diffinseconds);
+
+            // add seconds to mention date
+            $scheduledate = $mentiondate->addSeconds($diffinseconds);
+            // printf("%s from mentiondate is: %s", $content, $scheduledate);
+
         } catch (\Throwable $exception) {
-            //echo $exception->getMessage(). "<br />";
-            $date = null;
+            // echo $exception->getMessage() . "<br />";
+            $scheduledate = null;
             // set the last modified id in our file so it doesn't get processed again
             // TODO send reply to sender that setting the reminder failed, and link to docs
             self::setLastSeenMentionId($mention->id);
         }
-        // we have a date, but we need the date used as the mention created_at date
-        // get the original mention datetime
-        $mentiondate = new Carbon($mention->created_at);
-        echo $mentiondate;
-        printf("<br />Mention created at %s<br/>", $mentiondate);
-        // get the diff in seconds between now an the parsed date based in the content of the toot
-        $diffinseconds = Carbon::now()->diffInSeconds($date);
-        printf("Diff in seconds: %s<br/>", $diffinseconds);
-        $mentiondate->addSeconds($diffinseconds);
-        printf("%s from mention date is: %s", $content, $mentiondate);
-        return $mentiondate;
+
+        return $scheduledate;
     }
 }

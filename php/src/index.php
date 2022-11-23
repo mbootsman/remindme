@@ -67,7 +67,7 @@ if ($mentions) {
                 "scheduled_at" => $schedule_at->format(DateTime::ATOM), // formatted to ISO8601
                 "language" => $language,
                 "in_reply_to_id" => $in_reply_to_id,
-                "visibility" => $visibility                
+                "visibility" => $visibility
             );
 
             $reminder_parameters = array(
@@ -75,8 +75,8 @@ if ($mentions) {
                 "api_uri" => "/api/v1/statuses",
                 "mention_id" => $mention->id
             );
-            // $reminder = $status->scheduleReminder($reminder_parameters);
-            
+
+            $reminder = $status->scheduleReminder($reminder_parameters);
         }
     }
 }

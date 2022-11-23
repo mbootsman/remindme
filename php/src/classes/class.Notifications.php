@@ -9,12 +9,12 @@ class Notifications {
 
         // Check if file exists
         if (file_exists($environment['last_mention_file'])) {
-            echo "File exists: " . $environment['last_mention_file'] . "<br />";
+            // echo "File exists: " . $environment['last_mention_file'] . "<br />";
 
             if ((filesize($environment['last_mention_file'])) > 0) {
                 $mention_file_file_id = file_get_contents($environment['last_mention_file']);
                 if ($mention_file_file_id) {
-                    echo "Found mention ID in file: " . $mention_file_file_id . "<br />";
+                    // echo "Found mention ID in file: " . $mention_file_file_id . "<br />";
                     return $mention_file_file_id;
                 }
             } else {
