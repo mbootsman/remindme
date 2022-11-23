@@ -1,9 +1,7 @@
 version: "3"
 services:
   nginx:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: nginx
     ports: 
       - "8080:80"
     networks:
@@ -12,7 +10,10 @@ services:
       - ./php/src/:/var/www/html/
       - ./logs/nginx:/var/log/nginx/
   php:
-    image: php:fpm-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: php:8.1-cli
     networks:
       - internal
     volumes:

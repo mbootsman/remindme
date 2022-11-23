@@ -23,30 +23,60 @@ include('classLoader.php');
 
 // phpinfo();
 
+// The main logic
+// Calls all methods to process notifications
+
 // Let's start with getting the notifications
 $notifications = new Notifications();
 $mentions = $notifications->getMentions();
 
 // If we have mentions we have not yet processed, process 'em
 if ($mentions) {
-    // loop through mentions
+    // Loop through mentions
     foreach ($mentions as $mention) {
-        // read the content
+        // Read the content
         // echo "<pre>" . print_r($mention) . "</pre>";
         $content = $mention->status->content;
         // try to convert content to datetime delta
         $helper = new Helper();
-        $delta = $helper->getRelativeDateDelta($content, $mention->id); // this is in UTC format
-        
-        if ($delta) {
+        $schedule_at = $helper->getScheduledatDate($content, $mention); // this is in UTC format
+
+        if ($schedule_at) {
             // We have a correct datetime formatted delta. So it's time to do two things:
-            // 1. build status update to set a reminder (schedulted post)
+            // 1. build status update to set a reminder (scheduled post)
             // 2. build status update to confirm that a remidner has been set (reply)
             $status = new Status();
-            echo "<pre>$delta</pre>";
-            $reminder_data = array();
-            $reminder = $status->scheduleReminder($reminder_data);
-            printf("Converted \" %s \" to a scheduled date/time = %s", $content, $delta);
+
+            // printf("<br />Converted \" %s \" to a scheduled date/time = %s", $content, $schedule_at);
+
+            $replied_to_toot_url = $status->getRepliedToTootURL(array(
+                "mention_status_id" => $mention->status->id,
+                "mention_status_in_reply_to_id" => $mention->status->in_reply_to_id,
+                "api_uri" => "/api/v1/statuses/%statusid%/context" // %statusid% will be replacef in the getRepliedToTootURL
+            ));
+
+            $in_reply_to_id = $mention->status->id;
+            $visibility = 'unlisted'; // TODO for testing set to unlisted, public should be used when ready
+            $language = 'en';
+            $reply_to_username = $mention->status->account->username;
+            $reply_to_username_url = $mention->status->account->url;
+            $reminder_status_message = "@" . $reply_to_username . " here is your reminder for " . $replied_to_toot_url . ". Thanks for using #remindmebot!";
+
+            $reminder_data = array(
+                "status" => $reminder_status_message,
+                "scheduled_at" => $schedule_at->format(DateTime::ATOM), // formatted to ISO8601
+                "language" => $language,
+                "in_reply_to_id" => $in_reply_to_id,
+                "visibility" => $visibility                
+            );
+
+            $reminder_parameters = array(
+                "status_parameters" => $reminder_data,
+                "api_uri" => "/api/v1/statuses",
+                "mention_id" => $mention->id
+            );
+            // $reminder = $status->scheduleReminder($reminder_parameters);
+            
         }
     }
 }
