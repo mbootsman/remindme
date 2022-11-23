@@ -4,6 +4,8 @@ class Notifications {
     private $enivronment;
 
     function getLastSeenMentionId() {
+
+        // TODO move this method to helper class
         $mention_file_file_id = false;
         $environment = Helper::getEnvironment();
 
