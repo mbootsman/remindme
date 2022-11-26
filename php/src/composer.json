@@ -1,5 +1,8 @@
 {
     "require": {
         "nesbot/carbon": "^2.63"
+    },
+    "config": {
+        "platform-check": false
     }
 }

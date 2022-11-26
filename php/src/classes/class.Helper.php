@@ -3,7 +3,7 @@ require 'vendor/autoload.php';
 
 use Carbon\Carbon;
 
-// TODO add docblocks to methods
+// TODO Add logfile with some debug info - limit filesize
 
 // Helper class with methods to process string transformations
 class Helper {
@@ -11,6 +11,14 @@ class Helper {
     static protected $environment;
 
     public static function getEnvironment() {
+        /**
+         * Get environment values
+         * 
+         * @param none
+         * 
+         * @return array with environment values
+         * 
+         */
         include("env.php");
         self::$environment = $env; // variable in env.php is called $env
 
@@ -18,6 +26,14 @@ class Helper {
     }
 
     public static function doCurlGETRequest($parameters) {
+        /**
+         * Execute cURL GET request
+         * 
+         * @param string $parameters Contains all parameters to execute the GET request
+         * 
+         * @return string $result with the result of the cURL request
+         * 
+         */
         if ($parameters["api_uri"] != '') {
             $api_uri = $parameters["api_uri"];
         }
@@ -59,18 +75,40 @@ class Helper {
         // handle curl error
         if ($result === false) {
             throw new Exception('Curl error: ' . curl_error($curl_handle));
-            // TODO Send a private toot with the error.
+            // Send a private toot to @remindme with the error.
+            $error_status_message = '@remindme@toot.re cURL error: ' . curl_error($curl_handle);
+            $error_data = array(
+                "status" => $error_status_message,
+                "language" => 'en',
+                "visibility" => 'direct'
+            );
+
+            $error_parameters = array(
+                "status_parameters" => $error_data,
+                "api_uri" => "/api/v1/statuses"
+            );
+
+            $status = new Status();
+            $status->postFailure($error_parameters);
             // print_r('Curl error: ' . curl_error($curl_handle));
             // Close cURL session handle
             curl_close($curl_handle);
-            // TODO do we leave the die() here?
-            die();
+            // stop all further processing
+            return false;
         } else {
             return $result;
         }
     }
 
     public static function doCurlPOSTRequest($parameters) {
+        /**
+         * Execute cURL POST request
+         * 
+         * @param string $parameters Contains all parameters to execute the POST request
+         * 
+         *  @return string $result with the result of the cURL request
+         * 
+         */
         if ($parameters["api_uri"] != '') {
             $api_uri = $parameters["api_uri"];
         }
@@ -116,16 +154,52 @@ class Helper {
         return $result;
     }
 
-    public static function setLastSeenMentionId($mentionid) {
+    public static function getLastSeenMentionId() {
+        /**
+         * Get last processed Mention ID from last_mention_id file
+         * 
+         * @param none
+         * 
+         *  @return string $mention_file_id with the mention id from the file
+         * 
+         */
+
+        $mention_file_id = false;
+
         // Check if file exists
         if (file_exists(self::getEnvironment()['last_mention_file'])) {
-            // echo "File exists for writing: " . self::getEnvironment()['last_mention_file'] . "<br />";
+            // echo "File exists: " . self::getEnvironment()['last_mention_file'] . "<br />";
 
-            file_put_contents(self::getEnvironment()['last_mention_file'], $mentionid);
+            if ((filesize(self::getEnvironment()['last_mention_file'])) > 0) {
+                $mention_file_id = file_get_contents(self::getEnvironment()['last_mention_file']);
+                if ($mention_file_id) {
+                    // echo "Found mention ID in file: " . $mention_file_id . "<br />";
+                    return $mention_file_id;
+                }
+            } else {
+                // echo "File is empty<br />";
+                return false;
+            }
         } else {
             // echo "File does not exist";
             return false;
         }
+    }
+    public static function setLastSeenMentionId($mentionid) {
+        /**
+         * Set last processed Mention ID in last_mention_id file
+         * 
+         * @param id $mentionid Contains mention id to store in the file
+         * 
+         *  @return string $result with the result of the cURL request
+         * 
+         */
+        return file_put_contents(self::getEnvironment()['last_mention_file'], $mentionid);
+    }
+
+    public static function isReplyTo($mention) {
+
+        return filter_var($mention->status->in_reply_to_id, FILTER_VALIDATE_INT);
     }
 
     // Inspired by code found here: https://9to5answer.com/converting-words-to-numbers-in-php
@@ -145,9 +219,10 @@ class Helper {
 
     function getScheduledatDate($str, $mention) {
         /**
-         * Try to get relative$scheduledate daelta from string $str
+         * Try to get relative date delta from string $str
          * 
          * @param string $str Contains the content of the toot
+         * @param object $mention Contains the mention object
          * 
          * @return array with not yet processed mention objects or false if no mentions found
          * 
@@ -228,8 +303,37 @@ class Helper {
             // echo $exception->getMessage() . "<br />";
             $scheduledate = null;
             // set the last modified id in our file so it doesn't get processed again
-            // TODO send reply to sender that setting the reminder failed, and link to docs
             self::setLastSeenMentionId($mention->id);
+
+            // Send a private toot to SENDER with the error.
+            $status = new Status();
+
+            $replied_to_toot_url = $status->getRepliedToTootURL(array(
+                "mention_status_id" => $mention->status->id,
+                "mention_status_in_reply_to_id" => $mention->status->in_reply_to_id,
+                "api_uri" => "/api/v1/statuses/%statusid%/context" // %statusid% will be replaced in the getRepliedToTootURL
+            ));
+
+            $in_reply_to_id = $mention->status->id;
+
+            $visibility = 'private'; // Failures don't need to be public, so we set them to private
+            $language = 'en';
+            $reply_to_username = $mention->status->account->username;
+            $failure_status_message = "@" . $reply_to_username . " somehow setting your reminder for " . $replied_to_toot_url . " failed. \nPlease try again with a different reminder text. For instance 'in ten minutes', 'in two years' or 'next week'. \n\rThanks for using #remindmebot!";
+
+            $failure_data = array(
+                "status" => $failure_status_message,
+                "language" => $language,
+                "in_reply_to_id" => $in_reply_to_id,
+                "visibility" => $visibility
+            );
+
+            $failure_parameters = array(
+                "status_parameters" => $failure_data,
+                "api_uri" => "/api/v1/statuses"
+            );
+
+            $reminder = $status->postFailure($failure_parameters);
         }
 
         return $scheduledate;

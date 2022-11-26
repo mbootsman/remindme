@@ -3,32 +3,6 @@
 class Notifications {
     private $enivronment;
 
-    function getLastSeenMentionId() {
-
-        // TODO move this method to helper class
-        $mention_file_file_id = false;
-        $environment = Helper::getEnvironment();
-
-        // Check if file exists
-        if (file_exists($environment['last_mention_file'])) {
-            // echo "File exists: " . $environment['last_mention_file'] . "<br />";
-
-            if ((filesize($environment['last_mention_file'])) > 0) {
-                $mention_file_file_id = file_get_contents($environment['last_mention_file']);
-                if ($mention_file_file_id) {
-                    // echo "Found mention ID in file: " . $mention_file_file_id . "<br />";
-                    return $mention_file_file_id;
-                }
-            } else {
-                // echo "File is empty<br />";
-                return false;
-            }
-        } else {
-            // echo "File does not exist";
-            return false;
-        }
-    }
-
     function getMentions() {
         /**
          * Get notifications from Mastodon, only non-processed, new notifications of type `mention`
@@ -42,13 +16,17 @@ class Notifications {
         $mentions = array();
 
         // Build request parameters
-        // Store last processed notification ID
-        $since_id = $this->getLastSeenMentionId();
-
         $api_parameters = array(
             "exclude_types" => array("follow", "favourite", "reblog", "poll", "follow_request"),
-            "since_id" => $since_id
+
         );
+
+        // Store last processed notification ID
+        $since_id = Helper::getLastSeenMentionId();
+
+        if ($since_id) {
+            $api_parameters["since_id"] = $since_id;
+        }
 
         $parameters = array(
             "api_parameters" => $api_parameters,
@@ -70,21 +48,24 @@ class Notifications {
         foreach ($result_array as $object) {
             if ($object->type == 'mention') {
                 // check mention id in file
-                if ($mention_id_from_file = $this->getLastSeenMentionId()) {
+                if ($mention_id_from_file = Helper::getLastSeenMentionId()) {
                     // echo "Mention ID found in file: " . $mention_id_from_file . "<br />";
                     // Check if notification ID is larger than ID in file
                     if ($object->id > $mention_id_from_file) {
                         // we have a new mention, add it to the mentions array
                         $mentions[] = $object;
                     }
+                } else {
+                    // somehow the last mention id file does not exist.
+                    // So let's only get the last mention for now
+                    $mentions[] = $object;
+                    break; //break the foreach loop
                 }
-                // echo '<b>Mention ID: </b>' . $object->id . '<br />';
             }
         }
 
-
         // echo '<b>Returned Array:</b><pre>' . print_r($mentions, true) . '</pre>';
-        // echo '<pre>' . print_r(json_decode($result), true) . '</pre>';
+        // echo '<pre>' . print_r($mentions) . '</pre>';
 
         // Return Array of objects (mentions)
         return $mentions;

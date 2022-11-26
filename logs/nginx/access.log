@@ -1,7 +1,0 @@
-172.21.0.1 - - [23/Nov/2022:07:00:35 +0000] "GET /carbontest.php HTTP/1.1" 404 153 "-" "Mozilla/5.0 (X11; Linux x86_64; rv:107.0) Gecko/20100101 Firefox/107.0" "-"
-172.21.0.1 - - [23/Nov/2022:07:00:36 +0000] "GET /carbontest.php HTTP/1.1" 404 153 "-" "Mozilla/5.0 (X11; Linux x86_64; rv:107.0) Gecko/20100101 Firefox/107.0" "-"
-172.21.0.1 - - [23/Nov/2022:07:00:36 +0000] "GET /carbontest.php HTTP/1.1" 404 153 "-" "Mozilla/5.0 (X11; Linux x86_64; rv:107.0) Gecko/20100101 Firefox/107.0" "-"
-172.21.0.1 - - [23/Nov/2022:07:00:44 +0000] "\x16\x03\x01\x02\x00\x01\x00\x01\xFC\x03\x03\x95\xABbq?\xB5\xD1\xC5\xD8\xE9/\xCD\x08\x0Cw\xD3\xD9{G" 400 157 "-" "-" "-"
-172.21.0.1 - - [23/Nov/2022:07:00:47 +0000] "GET / HTTP/1.1" 200 615 "-" "Mozilla/5.0 (X11; Linux x86_64; rv:107.0) Gecko/20100101 Firefox/107.0" "-"
-172.21.0.1 - - [23/Nov/2022:07:00:50 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (X11; Linux x86_64; rv:107.0) Gecko/20100101 Firefox/107.0" "-"
-172.21.0.1 - - [23/Nov/2022:07:00:51 +0000] "GET / HTTP/1.1" 304 0 "-" "Mozilla/5.0 (X11; Linux x86_64; rv:107.0) Gecko/20100101 Firefox/107.0" "-"

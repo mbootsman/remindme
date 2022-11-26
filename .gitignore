@@ -4,4 +4,5 @@ php/src/composer.phar
 php/src/env.php
 php/src/filetest.php
 logs/*
-php/src/last_mention_id
+deploy.sh
+file.txt
