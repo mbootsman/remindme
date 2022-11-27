@@ -1,8 +1,7 @@
 <?php
 
 class Notifications {
-    private $enivronment;
-
+    
     function getMentions() {
         /**
          * Get notifications from Mastodon, only non-processed, new notifications of type `mention`

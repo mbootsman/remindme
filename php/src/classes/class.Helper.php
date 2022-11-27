@@ -93,7 +93,6 @@ class Helper {
             // print_r('Curl error: ' . curl_error($curl_handle));
             // Close cURL session handle
             curl_close($curl_handle);
-            // stop all further processing
             return false;
         } else {
             return $result;
