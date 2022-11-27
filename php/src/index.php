@@ -14,11 +14,10 @@ When called it will:
         - Parse the content to see if we can determine a date in the future
         - Post status update to notifiy user of succesful reminder 
         - Post status update to remind the user of the replied to toot with scheduled_at
-        - TODO If no correct date possible post error message with link to usage docs
     - If no mentions found - end the process silently
 - Finished
 */
-// TODO remove all echo's / printfs / var_dumps/ when ready
+// TODO comment all echo's / printfs / var_dumps when ready
 include('classLoader.php');
 
 // The main logic
