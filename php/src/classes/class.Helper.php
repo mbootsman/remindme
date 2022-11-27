@@ -296,6 +296,9 @@ class Helper {
         // print_r($content_array);
         $content = implode(' ', $content_array);
 
+        // replace some words
+        $content = str_replace('tomorrow', '1 day', $content);
+
         // Time to try to convert this to a datetime thingy
         try {
             $scheduledate = Carbon::parse($content);
