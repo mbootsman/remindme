@@ -3,9 +3,9 @@ require 'vendor/autoload.php';
 
 use Carbon\Carbon;
 
-// TODO Add logfile with some debug info - limit filesize
+// TODO Add logfile with some debug info - limit filesize FIFO
 
-// Helper class with methods to process string transformations
+// Helper class with a diverse amount of methods to do all kinds of stuff :) 
 class Helper {
 
     static protected $environment;
@@ -118,15 +118,15 @@ class Helper {
         //var_dump($status_data_json);
 
         // Prepare new cURL resource
-        $crl = curl_init(self::getEnvironment()["server"] . $api_uri);
-        curl_setopt($crl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($crl, CURLINFO_HEADER_OUT, true);
-        curl_setopt($crl, CURLOPT_POST, true);
-        curl_setopt($crl, CURLOPT_POSTFIELDS, $status_data_json);
+        $curl_handle = curl_init(self::getEnvironment()["server"] . $api_uri);
+        curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl_handle, CURLINFO_HEADER_OUT, true);
+        curl_setopt($curl_handle, CURLOPT_POST, true);
+        curl_setopt($curl_handle, CURLOPT_POSTFIELDS, $status_data_json);
 
         // Set HTTP Header for POST request 
         curl_setopt(
-            $crl,
+            $curl_handle,
             CURLOPT_HTTPHEADER,
             array(
                 'Content-Type: application/json',
@@ -136,19 +136,34 @@ class Helper {
         );
 
         // Submit the POST request
-        $result = curl_exec($crl);
+        $result = curl_exec($curl_handle);
 
         // handle curl error
         if ($result === false) {
-            throw new Exception('Curl error: ' . curl_error($crl));
-            print_r('Curl error: ' . curl_error($crl));
+            throw new Exception('Curl error: ' . curl_error($curl_handle));
+            // Send a private toot to @remindme with the error.
+            $error_status_message = '@remindme@toot.re cURL error: ' . curl_error($curl_handle);
+            $error_data = array(
+                "status" => $error_status_message,
+                "language" => 'en',
+                "visibility" => 'direct'
+            );
+
+            $error_parameters = array(
+                "status_parameters" => $error_data,
+                "api_uri" => "/api/v1/statuses"
+            );
+
+            $status = new Status();
+            $status->postFailure($error_parameters);
+            // print_r('Curl error: ' . curl_error($crl));
             // Close cURL session handle
-            curl_close($crl);
+            curl_close($curl_handle);
             die();
         } else {
             // echo '<pre>' . print_r(json_decode($result), true) . '</pre>';
             // Close cURL session handle
-            curl_close($crl);
+            curl_close($curl_handle);
         }
         return $result;
     }

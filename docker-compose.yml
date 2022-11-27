@@ -7,8 +7,6 @@ services:
     restart: always
     ports:
       - 8080:80
-      # Enable 443 on production
-      # - 443:443
     depends_on:
       - php
     volumes:
