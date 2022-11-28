@@ -292,12 +292,12 @@ class Helper {
         // echo "content after @ removal: $content<br />";
         // $content = "in 1 minute";
         $content_array = array_diff(explode(' ', $content), $omit_words);
-
-        // print_r($content_array);
+        // echo "content after removing omit words: " . print_r($content_array, true) . "</pre>";
         $content = implode(' ', $content_array);
 
         // replace some words
         $content = str_replace('tomorrow', '1 day', $content);
+        // echo $content;
 
         // Time to try to convert this to a datetime thingy
         try {
@@ -312,10 +312,47 @@ class Helper {
             $diffinseconds = Carbon::now()->diffInSeconds($scheduledate);
             // printf("Diff in seconds: %s<br/>", $diffinseconds);
 
-            // add seconds to mention date
-            $scheduledate = $mentiondate->addSeconds($diffinseconds);
-            // printf("%s from mentiondate is: %s", $content, $scheduledate);
+            if ($diffinseconds > 300) {
+                // 5 minute minimum as mentioned in API docs https://docs.joinmastodon.org/methods/statuses/#form-data-parameters
+                // add seconds to mention date
+                $scheduledate = $mentiondate->addSeconds($diffinseconds);
+                // printf("%s from mentiondate is: %s", $content, $scheduledate);
+            } else {
+                $scheduledate = null;
+                // set the last modified id in our file so it doesn't get processed again
+                self::setLastSeenMentionId($mention->id);
 
+                // Send a private toot to SENDER with the error.
+                $status = new Status();
+
+                $replied_to_toot_url = $status->getRepliedToTootURL(array(
+                    "mention_status_id" => $mention->status->id,
+                    "mention_status_in_reply_to_id" => $mention->status->in_reply_to_id,
+                    "api_uri" => "/api/v1/statuses/%statusid%/context" // %statusid% will be replaced in the getRepliedToTootURL
+                ));
+
+                $in_reply_to_id = $mention->status->id;
+
+                $visibility = 'private'; // Failures don't need to be public, so we set them to private
+                $language = 'en';
+
+                $reply_to_username = $mention->status->account->acct;
+                $failure_status_message = "@" . $reply_to_username . " setting your reminder for " . $replied_to_toot_url . " failed. Please use a minumum of five minutes.\n\n Please try again with a different reminder text. For instance 'in ten minutes', 'in two years' or 'next week'. \n\rThanks for using #remindmebot!";
+
+                $failure_data = array(
+                    "status" => $failure_status_message,
+                    "language" => $language,
+                    "in_reply_to_id" => $in_reply_to_id,
+                    "visibility" => $visibility
+                );
+
+                $failure_parameters = array(
+                    "status_parameters" => $failure_data,
+                    "api_uri" => "/api/v1/statuses"
+                );
+
+                $failure_status = $status->postFailure($failure_parameters);
+            }
         } catch (\Throwable $exception) {
             // echo $exception->getMessage() . "<br />";
             $scheduledate = null;
@@ -335,7 +372,8 @@ class Helper {
 
             $visibility = 'private'; // Failures don't need to be public, so we set them to private
             $language = 'en';
-            $reply_to_username = $mention->status->account->username;
+
+            $reply_to_username = $mention->status->account->acct;
             $failure_status_message = "@" . $reply_to_username . " somehow setting your reminder for " . $replied_to_toot_url . " failed. \nPlease try again with a different reminder text. For instance 'in ten minutes', 'in two years' or 'next week'. \n\rThanks for using #remindmebot!";
 
             $failure_data = array(
@@ -350,7 +388,7 @@ class Helper {
                 "api_uri" => "/api/v1/statuses"
             );
 
-            $reminder = $status->postFailure($failure_parameters);
+            $failure_status = $status->postFailure($failure_parameters);
         }
 
         return $scheduledate;

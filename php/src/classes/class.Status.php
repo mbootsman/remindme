@@ -90,7 +90,7 @@ class Status {
             $in_reply_to_id = $status_parameters["in_reply_to_id"];
             $visibility = 'unlisted'; // The confirmation does not need to be discoverable 
             $language = $status_parameters["language"];
-            $reply_to_username = $parameters["mention"]->status->account->username;
+            $reply_to_username = $parameters["mention"]->status->account->acct;
             $confirmation_status_message = "@" . $reply_to_username . " your reminder for " . $replied_to_toot_url . " is set at " . $scheduledatetime . "! Thanks for using #remindmebot!";
             
             $confirmation_data = array(
