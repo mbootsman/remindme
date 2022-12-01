@@ -55,7 +55,7 @@ if ($mentions) {
                 ));
 
                 $in_reply_to_id = $mention->status->id;
-                $visibility = 'unlisted'; // Reminders don't need to be public, so we set them to unlisted
+                $visibility = 'public'; // Set to public for promotion of hashtag.
                 $language = 'en';
                 $reply_to_username = $mention->status->account->acct;
                 $reminder_status_message = "@" . $reply_to_username . " here is your reminder for " . $replied_to_toot_url . ". Thanks for using #remindmebot!";

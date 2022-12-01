@@ -80,7 +80,7 @@ class Helper {
             $error_data = array(
                 "status" => $error_status_message,
                 "language" => 'en',
-                "visibility" => 'direct'
+                "visibility" => 'direct' // Error messages do not need to be public.
             );
 
             $error_parameters = array(
@@ -146,7 +146,7 @@ class Helper {
             $error_data = array(
                 "status" => $error_status_message,
                 "language" => 'en',
-                "visibility" => 'direct'
+                "visibility" => 'direct' // Error messages do not need to be public.
             );
 
             $error_parameters = array(

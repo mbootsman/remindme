@@ -88,7 +88,7 @@ class Status {
             $scheduledatetime = date("F jS, o @ G:i e", strtotime($status_parameters["scheduled_at"]));
 
             $in_reply_to_id = $status_parameters["in_reply_to_id"];
-            $visibility = 'unlisted'; // The confirmation does not need to be discoverable 
+            $visibility = 'public'; // For promotion purposes, set to public 
             $language = $status_parameters["language"];
             $reply_to_username = $parameters["mention"]->status->account->acct;
             $confirmation_status_message = "@" . $reply_to_username . " your reminder for " . $replied_to_toot_url . " is set at " . $scheduledatetime . "! Thanks for using #remindmebot!";
