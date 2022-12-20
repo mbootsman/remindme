@@ -14,7 +14,7 @@ When called it will:
         - Parse the content to see if we can determine a date in the future
         - Post status update to notifiy user of succesful reminder 
         - Post status update to remind the user of the replied to toot with scheduled_at
-    - If no mentions found - end the process silently
+    - If no mentions found - send error message to user
 - Finished
 */
 // TODO comment all echo's / printfs / var_dumps when ready
@@ -58,7 +58,7 @@ if ($mentions) {
                 $visibility = 'public'; // Set to public for promotion of hashtag.
                 $language = 'en';
                 $reply_to_username = $mention->status->account->acct;
-                $reminder_status_message = "@" . $reply_to_username . " here is your reminder for " . $replied_to_toot_url . ". Thanks for using #remindmebot!";
+                $reminder_status_message = "@" . $reply_to_username . " here is your reminder for " . $replied_to_toot_url . "⏰.\n\rThanks for using #remindmebot!";
 
                 $reminder_data = array(
                     "status" => $reminder_status_message,
@@ -76,6 +76,37 @@ if ($mentions) {
 
                 $reminder = $status->scheduleReminder($reminder_parameters);
             }
+        }
+        else {
+            // no reply found send error message
+            $scheduledate = null;
+            // set the last modified id in our file so it doesn't get processed again
+            Helper::setLastSeenMentionId($mention->id);
+
+            // Send a private toot to SENDER with the error.
+            $status = new Status();
+
+            $in_reply_to_id = $mention->status->id;
+
+            $visibility = 'private'; // Failures don't need to be public, so we set them to private
+            $language = 'en';
+
+            $reply_to_username = $mention->status->account->acct;
+            $failure_status_message = "@" . $reply_to_username . " setting your reminder failed 😞 . \n\rPlease try again. Reply to a toot, and mention @remindme@toot.re with a relative time. For instance 'in ten minutes', 'in two years' or 'next week'. \n\rThanks for using #remindmebot!";
+
+            $failure_data = array(
+                "status" => $failure_status_message,
+                "language" => $language,
+                "in_reply_to_id" => $in_reply_to_id,
+                "visibility" => $visibility
+            );
+
+            $failure_parameters = array(
+                "status_parameters" => $failure_data,
+                "api_uri" => "/api/v1/statuses"
+            );
+
+            $failure_status = $status->postFailure($failure_parameters);
         }
     }
 }

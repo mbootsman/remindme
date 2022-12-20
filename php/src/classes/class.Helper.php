@@ -337,7 +337,7 @@ class Helper {
                 $language = 'en';
 
                 $reply_to_username = $mention->status->account->acct;
-                $failure_status_message = "@" . $reply_to_username . " setting your reminder for " . $replied_to_toot_url . " failed. Please use a minumum of five minutes.\n\n Please try again with a different reminder text. For instance 'in ten minutes', 'in two years' or 'next week'. \n\rThanks for using #remindmebot!";
+                $failure_status_message = "@" . $reply_to_username . " setting your reminder for " . $replied_to_toot_url . " failed 😞.\n\rPlease use a minumum of five minutes.\n\rPlease try again with a different reminder text. For instance 'in ten minutes', 'in two years' or 'next week'. \n\rThanks for using #remindmebot!";
 
                 $failure_data = array(
                     "status" => $failure_status_message,
@@ -374,7 +374,7 @@ class Helper {
             $language = 'en';
 
             $reply_to_username = $mention->status->account->acct;
-            $failure_status_message = "@" . $reply_to_username . " somehow setting your reminder for " . $replied_to_toot_url . " failed. \nPlease try again with a different reminder text. For instance 'in ten minutes', 'in two years' or 'next week'. \n\rThanks for using #remindmebot!";
+            $failure_status_message = "@" . $reply_to_username . " somehow setting your reminder for " . $replied_to_toot_url . " failed 😞. \n\rPlease try again with a different reminder text. For instance 'in ten minutes', 'in two years' or 'next week'. \n\rThanks for using #remindmebot!";
 
             $failure_data = array(
                 "status" => $failure_status_message,
