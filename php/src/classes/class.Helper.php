@@ -286,7 +286,7 @@ class Helper {
         // Remove all mentions (@....)
         // Trim leading spaces
         // Remove some omit words
-        $omit_words = array('in');
+        $omit_words = array('in', 'on', 'and');
 
         $content = ltrim(preg_replace('/(\s+|^)@\S+/', '', strip_tags($str)));
         // echo "content after @ removal: $content<br />";
