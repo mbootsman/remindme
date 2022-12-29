@@ -1,6 +1,6 @@
 <?php
 
-/* Remind ME Mastodon Bot
+/* Remind Me Mastodon Bot
 
 This file is called by an external cronjob
 
@@ -12,7 +12,7 @@ When called it will:
         - Get the in_reply_to_id
         - Get the status -> content
         - Parse the content to see if we can determine a date in the future
-        - Post status update to notifiy user of succesful reminder 
+        - Post status update to notify user of successful reminder 
         - Post status update to remind the user of the replied to toot with scheduled_at
     - If no mentions found - send error message to user
 - Finished
@@ -43,7 +43,7 @@ if ($mentions) {
             if ($schedule_at) {
                 // We have a correct datetime formatted delta. So it's time to do two things:
                 // 1. build status update to set a reminder (scheduled post)
-                // 2. build status update to confirm that a remidner has been set (reply)
+                // 2. build status update to confirm that a reminder has been set (reply)
                 $status = new Status();
 
                 // printf("<br />Converted \" %s \" to a scheduled date/time = %s", $content, $schedule_at);

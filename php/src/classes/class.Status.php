@@ -70,7 +70,7 @@ class Status {
 
         // Check if we got JSON back
         if (is_string($reminder_result) && is_array(json_decode($reminder_result, true))) {
-            //succesfully posted a reminder. Let's write the mention id to our last_mention_id file
+            //successfully posted a reminder. Let's write the mention id to our last_mention_id file
             $write_to_file = Helper::setLastSeenMentionId($parameters["mention"]->id);
             if (!$write_to_file) {
                 // we could not write to the file.
