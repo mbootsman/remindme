@@ -281,7 +281,20 @@ class Helper {
             $str = preg_replace("#\b$token\b#i", number_format($total), $str);
         }
 
-        // printf("<br />Right now is %s<br/>", Carbon::now()->toDateTimeString());
+        // remove part of string after break words
+        $break_words = array('second', 'seconds', 'minute', 'minutes', 'hour', 'hours', 'day', 'days', 'week', 'weeks', 'month', 'months', 'year', 'years');
+        $break_words = str_replace(',', '|', implode(',', $break_words));
+        $matches = '';
+        preg_match_all('~\b(' . $break_words .')\b~i', $str, $matches);
+        // echo '<br/>' . print_r($matches, true) . '<br />';
+        if (is_array($matches)) {
+            // break the string in two parts
+            // time part and rest rest
+        $string_array = explode($matches[0][0], $str);
+        $str = $string_array[0] . $matches[0][0];
+        // $rest = $string_array [1]; // for future reference
+        }
+        
         // Strip HMTL 
         // Remove all mentions (@....)
         // Trim leading spaces
