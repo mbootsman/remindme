@@ -91,7 +91,7 @@ class Status {
             $visibility = 'public'; // For promotion purposes, set to public 
             $language = $status_parameters["language"];
             $reply_to_username = $parameters["mention"]->status->account->acct;
-            $confirmation_status_message = "@" . $reply_to_username . " your reminder for " . $replied_to_toot_url . " is set at " . $scheduledatetime . "⏰!\n\rThanks for using #remindmebot!";
+            $confirmation_status_message = "@" . $reply_to_username . " your reminder for " . $replied_to_toot_url . " is set at " . $scheduledatetime . "!\n\r⏰ Thanks for using #remindmebot!";
             
             $confirmation_data = array(
                 "status" => $confirmation_status_message,

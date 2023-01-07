@@ -58,7 +58,7 @@ if ($mentions) {
                 $visibility = 'public'; // Set to public for promotion of hashtag.
                 $language = 'en';
                 $reply_to_username = $mention->status->account->acct;
-                $reminder_status_message = "@" . $reply_to_username . " here is your reminder for " . $replied_to_toot_url . " ⏰.\n\rThanks for using #remindmebot!";
+                $reminder_status_message = "@" . $reply_to_username . " here is your reminder for " . $replied_to_toot_url . ".\n\r⏰ Thanks for using #remindmebot!";
 
                 $reminder_data = array(
                     "status" => $reminder_status_message,
