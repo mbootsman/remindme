@@ -286,13 +286,14 @@ class Helper {
         $break_words = str_replace(',', '|', implode(',', $break_words));
         $matches = '';
         preg_match_all('~\b(' . $break_words .')\b~i', $str, $matches);
-        // echo '<br/>' . print_r($matches, true) . '<br />';
-        if (is_array($matches)) {
+        // echo '<br/>$str:' . $str . '<br />';
+        // echo '<br/>Matches:' . print_r($matches, true) . '<br />';
+        if (is_array($matches) && !empty($matches[0])) {
             // break the string in two parts
             // time part and rest rest
-        $string_array = explode($matches[0][0], $str);
-        $str = $string_array[0] . $matches[0][0];
-        // $rest = $string_array [1]; // for future reference
+            $string_array = explode($matches[0][0], $str);
+            $str = $string_array[0] . $matches[0][0];
+            // $rest = $string_array [1]; // for future reference
         }
         
         // Strip HMTL 
