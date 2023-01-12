@@ -326,7 +326,14 @@ class Helper {
             $diffinseconds = Carbon::now()->diffInSeconds($scheduledate);
             // printf("Diff in seconds: %s<br/>", $diffinseconds);
 
-            if ($diffinseconds > 300) {
+            # Sometimes diff in seconds dives under the 300 if the input was 5 minutes  
+            # This rounds the diff so it gets through
+            if ($diffinseconds < 300) {
+                $diffinseconds = round($diffinseconds, -2);
+            }
+
+            if ($diffinseconds >= 300) {
+                
                 // 5 minute minimum as mentioned in API docs https://docs.joinmastodon.org/methods/statuses/#form-data-parameters
                 // add seconds to mention date
                 $scheduledate = $mentiondate->addSeconds($diffinseconds);
@@ -351,7 +358,7 @@ class Helper {
                 $language = 'en';
 
                 $reply_to_username = $mention->status->account->acct;
-                $failure_status_message = "@" . $reply_to_username . " setting your reminder for " . $replied_to_toot_url . " failed 😞.\n\rPlease use a minumum of five minutes.\n\rPlease try again with a different reminder text. For instance 'in ten minutes', 'in two years' or 'next week'. \n\rThanks for using #remindmebot!";
+                $failure_status_message = "@" . $reply_to_username . " setting your reminder for " . $replied_to_toot_url . " failed 😞.\n\rPlease use a minimum of five minutes.\n\rPlease try again with a different reminder text. For instance 'in ten minutes', 'in two years' or 'next week'. \n\rThanks for using #remindmebot!";
 
                 $failure_data = array(
                     "status" => $failure_status_message,

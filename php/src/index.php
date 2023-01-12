@@ -78,6 +78,9 @@ if ($mentions) {
             }
         }
         else {
+
+            // TODO if the mention (which is not a reply) has a time in it, set reminder
+            
             // no reply found send error message
             $scheduledate = null;
             // set the last modified id in our file so it doesn't get processed again
