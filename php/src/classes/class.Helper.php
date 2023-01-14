@@ -483,7 +483,7 @@ class Helper {
 
                 $in_reply_to_id = $mention->status->id;
 
-                $visibility = 'private'; // Failures don't need to be public, so we set them to private
+                $visibility = 'direct'; // Failures don't need to be public, so we set them to direct
                 $language = 'en';
 
                 $reply_to_username = $mention->status->account->acct;
