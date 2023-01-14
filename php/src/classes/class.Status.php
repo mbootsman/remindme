@@ -92,7 +92,7 @@ class Status {
             $language = $status_parameters["language"];
             $reply_to_username = $parameters["mention"]->status->account->acct;
             $confirmation_status_message = "@" . $reply_to_username . " your reminder for " . $replied_to_toot_url . " is set at " . $scheduledatetime . "!\n\r⏰ Thanks for using #remindmebot!";
-            
+
             $confirmation_data = array(
                 "status" => $confirmation_status_message,
                 "language" => $language,
@@ -106,7 +106,7 @@ class Status {
                 "mention" => $parameters["mention"]
             );
 
-            $confirmation_result = $this->postConfirmation($confirmation_parameters);
+            $confirmation_result = $this->postStatusUpdate($confirmation_parameters);
 
             if (is_string($confirmation_result) && is_array(json_decode($confirmation_result, true))) {
                 // all went good, let's return the scheduled status
@@ -117,24 +117,21 @@ class Status {
         return false;
     }
 
-    function postConfirmation($parameters) {
+    function postStatusUpdate($parameters) {
         /**
          * Post confirmation that reminder is scheduled on Mastodon
          * 
          * @param array $parameters Contains all parameters needed to post a status update
          * 
-         * @return status 
-         * 
-         */
-
-        return Helper::doCurlPOSTRequest($parameters);
-    }
-
-    function postFailure($parameters) {
-        /**
-         * Post failure with information on how to use @remindme on Mastodon
-         * 
-         * @param array $status     Contains all parameters needed to post a status update
+         * array (
+         *    status_parameters array (
+         *       status
+         *       language
+         *       in_reply_to_id
+         *       visibility
+         *    ap_uri
+         *    mention
+         * ))
          * 
          * @return status 
          * 

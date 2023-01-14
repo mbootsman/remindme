@@ -1,12 +1,10 @@
 <?php
 
 class Notifications {
-    
+
     function getMentions() {
         /**
          * Get notifications from Mastodon, only non-processed, new notifications of type `mention`
-         * 
-         * @param array $status Contains all parameters needed to post a status update
          * 
          * @return array with not yet processed mention objects or false if no mentions found
          * 
