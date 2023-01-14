@@ -3,7 +3,7 @@ require 'vendor/autoload.php';
 
 use Carbon\Carbon;
 
-// TODO Add logfile with some debug info - limit filesize FIFO
+// TODO Add logging with some debug info - limit filesize FIFO
 
 // Helper class with a diverse amount of methods to do all kinds of stuff :) 
 class Helper {
@@ -36,18 +36,21 @@ class Helper {
          * @return string $result with the result of the cURL request
          * 
          */
-        
+
         // Loop through mentions
         foreach ($mentions as $mention) {
+            // Read the content
+            // echo "<pre>" . print_r($mention, true) . "</pre>";
+            $content = $mention->status->content;
 
             // first check if it is a reply to a toot
             if (Helper::isReplyTo($mention)) {
-                // Read the content
-                // echo "<pre>" . print_r($mention, true) . "</pre>";
-                $content = $mention->status->content;
+
                 // try to convert content to datetime delta
                 $helper = new Helper();
-                $schedule_at = $helper->getScheduledatDate($content, $mention); // this is in UTC format
+                $dateandrest = $helper->getScheduledatDate($content, $mention);
+                $schedule_at = $dateandrest['scheduledate']; // this is in UTC format
+                $rest = $dateandrest['rest']; // this is the second part of the content
 
                 if ($schedule_at) {
                     // We have a correct datetime formatted delta. So it's time to do two things:
@@ -56,6 +59,13 @@ class Helper {
                     $status = new Status();
 
                     // printf("<br />Converted \" %s \" to a scheduled date/time = %s", $content, $schedule_at);
+
+                    // get/create rest text
+                    if (!is_null($rest)) {
+                        $rest_text = 'Extra info you provided:' . $rest . '\n\r';
+                    } else {
+                        $rest_text = '';
+                    }
 
                     $replied_to_toot_url = $status->getRepliedToTootURL(array(
                         "mention_status_id" => $mention->status->id,
@@ -67,7 +77,7 @@ class Helper {
                     $visibility = 'public'; // Set to public for promotion of hashtag.
                     $language = 'en';
                     $reply_to_username = $mention->status->account->acct;
-                    $reminder_status_message = "@" . $reply_to_username . " here is your reminder for " . $replied_to_toot_url . ".\n\r⏰ Thanks for using #remindmebot!";
+                    $reminder_status_message = "@" . $reply_to_username . " here is your reminder for " . $replied_to_toot_url . ".\n\r " . $rest_text . "⏰ Thanks for using #remindmebot!";
 
                     $reminder_data = array(
                         "status" => $reminder_status_message,
@@ -87,37 +97,50 @@ class Helper {
                 }
             } else {
 
-                // TODO if the mention (which is not a reply) has a time in it, set reminder
+                // try to convert content to datetime delta
+                $helper = new Helper();
 
-                // no reply found send error message
-                $scheduledate = null;
-                // set the last modified id in our file so it doesn't get processed again
-                Helper::setLastSeenMentionId($mention->id);
+                $dateandrest = $helper->getScheduledatDate($content, $mention);
+                $schedule_at = $dateandrest['scheduledate']; // this is in UTC format
+                $rest = $dateandrest['rest']; // this is the second part of the content
 
-                // Send a private toot to SENDER with the error.
-                $status = new Status();
+                if ($schedule_at) {
+                    // We have a correct datetime formatted delta. So it's time to do two things:
+                    // 1. build status update to set a reminder (scheduled post)
+                    // 2. build status update to confirm that a reminder has been set (reply)
+                    $status = new Status();
 
-                $in_reply_to_id = $mention->status->id;
+                    // printf("<br />Converted \" %s \" to a scheduled date/time = %s", $content, $schedule_at);
 
-                $visibility = 'private'; // Failures don't need to be public, so we set them to private
-                $language = 'en';
+                    // get/create rest text
+                    if (!is_null($rest)) {
+                        $rest_text = 'Extra info you provided:' . $rest . '\n\r';
+                    } else {
+                        $rest_text = '';
+                    }
 
-                $reply_to_username = $mention->status->account->acct;
-                $failure_status_message = "@" . $reply_to_username . " setting your reminder failed 😞 . \n\rPlease try again. Reply to a toot, and mention @remindme@toot.re with a relative time. For instance 'in ten minutes', 'in two years' or 'next week'. \n\rThanks for using #remindmebot!";
+                    $in_reply_to_id = $mention->status->id;
+                    $visibility = 'public'; // Set to public for promotion of hashtag.
+                    $language = 'en';
+                    $reply_to_username = $mention->status->account->acct;
+                    $reminder_status_message = "@" . $reply_to_username . " here is your reminder.\n\r" . $rest_text . "⏰ Thanks for using #remindmebot!";
 
-                $failure_data = array(
-                    "status" => $failure_status_message,
-                    "language" => $language,
-                    "in_reply_to_id" => $in_reply_to_id,
-                    "visibility" => $visibility
-                );
+                    $reminder_data = array(
+                        "status" => $reminder_status_message,
+                        "scheduled_at" => $schedule_at->format(DateTime::ATOM), // formatted to ISO8601
+                        "language" => $language,
+                        "in_reply_to_id" => $in_reply_to_id,
+                        "visibility" => $visibility
+                    );
 
-                $failure_parameters = array(
-                    "status_parameters" => $failure_data,
-                    "api_uri" => "/api/v1/statuses"
-                );
+                    $reminder_parameters = array(
+                        "status_parameters" => $reminder_data,
+                        "api_uri" => "/api/v1/statuses",
+                        "mention" => $mention
+                    );
 
-                $failure_status = $status->postStatusUpdate($failure_parameters);
+                    $reminder = $status->scheduleReminder($reminder_parameters);
+                }
             }
         }
     }
@@ -334,7 +357,7 @@ class Helper {
          * @param string $str Contains the content of the toot
          * @param object $mention Contains the mention object
          * 
-         * @return array with not yet processed mention objects or false if no mentions found
+         * @return array scheduledate datetime of reminder, rest_text second part of reminder text
          * 
          */
 
@@ -344,12 +367,17 @@ class Helper {
             'twenty' => '20', 'thirty' => '30', 'forty' => '40', 'fifty' => '50', 'sixty' => '60', 'seventy' => '70', 'eighty' => '80', 'ninety' => '90',
             'hundred' => '100', 'thousand' => '1000', 'million' => '1000000', 'billion' => '1000000000'
         );
+
+        //  initialize rest text variable
+        $rest = null;
+
         // echo "\$str = " . $str . "<br />";
         preg_match_all('#((?:^|and|,| |-)*(\b' . implode('\b|\b', array_keys($keys)) . '\b))+#i', $str, $tokens);
         // print_r($tokens);
         $tokens = $tokens[0];
         usort($tokens, array($this, 'strlenSort'));
 
+        // replace words with numbers
         foreach ($tokens as $token) {
             $token = trim(strtolower($token));
             preg_match_all('#(?:(?:and|,| |-)*\b' . implode('\b|\b', array_keys($keys)) . '\b)+#', $token, $words);
@@ -386,10 +414,10 @@ class Helper {
         // echo '<br/>Matches:' . print_r($matches, true) . '<br />';
         if (is_array($matches) && !empty($matches[0])) {
             // break the string in two parts
-            // time part and rest rest
+            // time part and rest text
             $string_array = explode($matches[0][0], $str);
-            $str = $string_array[0] . $matches[0][0];
-            // $rest = $string_array [1]; // for future reference
+            $str = $string_array[0] . $matches[0][0]; // time part
+            $rest = $string_array[1]; // the rest text
         }
 
         // Strip HMTL 
@@ -405,7 +433,7 @@ class Helper {
         // echo "content after removing omit words: " . print_r($content_array, true) . "</pre>";
         $content = implode(' ', $content_array);
 
-        // replace some words
+        // replace words Carbon does not know
         $content = str_replace('tomorrow', '1 day', $content);
         // echo $content;
 
@@ -508,6 +536,9 @@ class Helper {
             $failure_status = $status->postStatusUpdate($failure_parameters);
         }
 
-        return $scheduledate;
+        return array(
+            "scheduledate" => $scheduledate,
+            "rest_text" => $rest
+        );
     }
 }

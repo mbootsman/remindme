@@ -1,9 +1,9 @@
 <?php
 class Status {
+    private $env;
 
     // include instance and API parameters
     function __construct() {
-        global $env;
         include("env.php");
 
         $this->env = $env;
@@ -77,6 +77,8 @@ class Status {
                 echo "File write failed<br/>";
                 // TODO send direct message to @remindme to report error or write to log
             };
+            
+           // Send confirmation to user
 
             $replied_to_toot_url = $this->getRepliedToTootURL(array(
                 "mention_status_id" => $parameters["mention"]->status->id,

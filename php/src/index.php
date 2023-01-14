@@ -5,7 +5,7 @@
 This file is called by an external cronjob
 
 When called it will:
-- Get notifications of @reminme@toot.re account
+- Get notifications of @remindme@toot.re account
 - Loop through the notifications (Array of objects)
   and get notifications of type = mention
     - Check if the mention id is greater than the one stored in the lastmention_id file, or get just the last one if the file doesn't exist
@@ -14,10 +14,11 @@ When called it will:
         - Parse the content to see if we can determine a date in the future
         - Post status update to notify user of successful reminder 
         - Post status update to remind the user of the replied to toot with scheduled_at
-    - If no mentions found - send error message to user
 - Finished
+
 */
 // TODO Add logging - replace var_dumps and echos
+// TODO Add second part of remindme toot (after relative time) to reminder
 
 include('classLoader.php');
 
