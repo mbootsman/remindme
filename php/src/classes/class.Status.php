@@ -36,15 +36,18 @@ class Status {
             // echo "getting context<br />";
             // echo '<pre>' . print_r(json_decode($result), true) . '</pre>';
             $result_array = json_decode($result);
-            if (is_object($ancestor = $result_array->ancestors[0])) {
-                $url = $ancestor->url;
+
+            if (array_key_exists(0, $result_array->ancestors)) {
+                if (is_object($ancestor = $result_array->ancestors[0])) {
+                    $url = $ancestor->url;
+                }
             }
         }
 
         return $url;
     }
 
-    function scheduleReminder($parameters) {
+    function scheduleReminder($parameters, $rest_text, $is_reply) {
         /**
          * Post reminder status on Mastodon
          * 
@@ -77,8 +80,8 @@ class Status {
                 echo "File write failed<br/>";
                 // TODO send direct message to @remindme to report error or write to log
             };
-            
-           // Send confirmation to user
+
+            // Send confirmation to user
 
             $replied_to_toot_url = $this->getRepliedToTootURL(array(
                 "mention_status_id" => $parameters["mention"]->status->id,
@@ -93,7 +96,23 @@ class Status {
             $visibility = 'public'; // For promotion purposes, set to public 
             $language = $status_parameters["language"];
             $reply_to_username = $parameters["mention"]->status->account->acct;
-            $confirmation_status_message = "@" . $reply_to_username . " your reminder for " . $replied_to_toot_url . " is set at " . $scheduledatetime . "!\n\r⏰ Thanks for using #remindmebot!";
+            if ($rest_text != '') {
+                if ($is_reply) {
+                    // extra info and it is a reply
+                    $confirmation_status_message = "@" . $reply_to_username . " your reminder for " . $replied_to_toot_url . " is set at " . $scheduledatetime . "!\n\r" . $rest_text . "\n\r⏰ Thanks for using #remindmebot!";
+                } else {
+                    //extra info and not a reply
+                    $confirmation_status_message = "@" . $reply_to_username . " your reminder is set at " . $scheduledatetime . "!\n\r" . $rest_text . "\n\r⏰ Thanks for using #remindmebot!";
+                }
+            } else {
+                if ($is_reply) {
+                    // no extra info and it is a reply
+                    $confirmation_status_message = "@" . $reply_to_username . " your reminder for " . $replied_to_toot_url . " is set at " . $scheduledatetime . "!\n\r⏰ Thanks for using #remindmebot!";
+                } else {
+                    // no extra info and not a reply
+                    $confirmation_status_message = "@" . $reply_to_username . " your reminder is set at " . $scheduledatetime . "!\n\rYou might want to add extra info next time, like: '@remindme in two hours for walking the dog\n\r⏰ Thanks for using #remindmebot!";
+                }
+            }
 
             $confirmation_data = array(
                 "status" => $confirmation_status_message,

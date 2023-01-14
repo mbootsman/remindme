@@ -42,9 +42,11 @@ class Helper {
             // Read the content
             // echo "<pre>" . print_r($mention, true) . "</pre>";
             $content = $mention->status->content;
+            $is_reply = false;
 
             // first check if it is a reply to a toot
             if (Helper::isReplyTo($mention)) {
+                $is_reply = true;
 
                 // try to convert content to datetime delta
                 $helper = new Helper();
@@ -61,8 +63,8 @@ class Helper {
                     // printf("<br />Converted \" %s \" to a scheduled date/time = %s", $content, $schedule_at);
 
                     // get/create rest text
-                    if (!is_null($rest)) {
-                        $rest_text = 'Extra info you provided:' . $rest . '\n\r';
+                    if ($rest != '') {
+                        $rest_text = "Extra info you provided: " . $rest;
                     } else {
                         $rest_text = '';
                     }
@@ -77,7 +79,7 @@ class Helper {
                     $visibility = 'public'; // Set to public for promotion of hashtag.
                     $language = 'en';
                     $reply_to_username = $mention->status->account->acct;
-                    $reminder_status_message = "@" . $reply_to_username . " here is your reminder for " . $replied_to_toot_url . ".\n\r " . $rest_text . "⏰ Thanks for using #remindmebot!";
+                    $reminder_status_message = "@" . $reply_to_username . " here is your reminder for " . $replied_to_toot_url . ".\n\r" . $rest_text . "\n\r⏰ Thanks for using #remindmebot!";
 
                     $reminder_data = array(
                         "status" => $reminder_status_message,
@@ -93,7 +95,7 @@ class Helper {
                         "mention" => $mention
                     );
 
-                    $reminder = $status->scheduleReminder($reminder_parameters);
+                    $reminder = $status->scheduleReminder($reminder_parameters, $rest_text, $is_reply);
                 }
             } else {
 
@@ -103,7 +105,6 @@ class Helper {
                 $dateandrest = $helper->getScheduledatDate($content, $mention);
                 $schedule_at = $dateandrest['scheduledate']; // this is in UTC format
                 $rest = $dateandrest['rest']; // this is the second part of the content
-
                 if ($schedule_at) {
                     // We have a correct datetime formatted delta. So it's time to do two things:
                     // 1. build status update to set a reminder (scheduled post)
@@ -113,8 +114,8 @@ class Helper {
                     // printf("<br />Converted \" %s \" to a scheduled date/time = %s", $content, $schedule_at);
 
                     // get/create rest text
-                    if (!is_null($rest)) {
-                        $rest_text = 'Extra info you provided:' . $rest . '\n\r';
+                    if ($rest != '') {
+                        $rest_text = "Extra info you provided: " . $rest;
                     } else {
                         $rest_text = '';
                     }
@@ -123,7 +124,7 @@ class Helper {
                     $visibility = 'public'; // Set to public for promotion of hashtag.
                     $language = 'en';
                     $reply_to_username = $mention->status->account->acct;
-                    $reminder_status_message = "@" . $reply_to_username . " here is your reminder.\n\r" . $rest_text . "⏰ Thanks for using #remindmebot!";
+                    $reminder_status_message = "@" . $reply_to_username . " here is your reminder.\n\r" . $rest_text . "\n\r⏰ Thanks for using #remindmebot!";
 
                     $reminder_data = array(
                         "status" => $reminder_status_message,
@@ -139,7 +140,7 @@ class Helper {
                         "mention" => $mention
                     );
 
-                    $reminder = $status->scheduleReminder($reminder_parameters);
+                    $reminder = $status->scheduleReminder($reminder_parameters, $rest_text, $is_reply);
                 }
             }
         }
@@ -417,7 +418,11 @@ class Helper {
             // time part and rest text
             $string_array = explode($matches[0][0], $str);
             $str = $string_array[0] . $matches[0][0]; // time part
-            $rest = $string_array[1]; // the rest text
+            if (array_key_exists(1, $string_array)) {
+                $rest = strip_tags($string_array[1]); // the rest text
+            } else {
+                $rest = '';
+            }            
         }
 
         // Strip HMTL 
@@ -538,7 +543,7 @@ class Helper {
 
         return array(
             "scheduledate" => $scheduledate,
-            "rest_text" => $rest
+            "rest" => $rest
         );
     }
 }
