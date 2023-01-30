@@ -422,7 +422,7 @@ class Helper {
                 $rest = strip_tags($string_array[1]); // the rest text
             } else {
                 $rest = '';
-            }            
+            }
         }
 
         // Strip HMTL 
@@ -439,6 +439,9 @@ class Helper {
         $content = implode(' ', $content_array);
 
         // replace words Carbon does not know
+        $content = str_replace('tomorrow morning', '1 day 9am', $content);
+        $content = str_replace('tomorrow afternoon', '1 day 2pm', $content);
+        $content = str_replace('tomorrow evening', '1 day 7pm', $content);
         $content = str_replace('tomorrow', '1 day', $content);
         // echo $content;
 
