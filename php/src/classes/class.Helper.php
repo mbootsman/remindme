@@ -50,10 +50,12 @@ class Helper {
 
                 // try to convert content to datetime delta
                 $helper = new Helper();
-                $dateandrest = $helper->getScheduledatDate($content, $mention);
-                $schedule_at = $dateandrest['scheduledate']; // this is in UTC format
-                $rest = $dateandrest['rest']; // this is the second part of the content
-
+                $dateandcontent = $helper->getScheduledatDate($content, $mention);
+                $schedule_at = $dateandcontent['scheduledate']; // this is in UTC format
+                $pre_string = $dateandcontent['pre_string']; // this is the text before the date part of the string
+                $post_string = $dateandcontent['post_string']; // this is the text before the date part of the string
+                $rest_text = '';
+                
                 if ($schedule_at) {
                     // We have a correct datetime formatted delta. So it's time to do two things:
                     // 1. build status update to set a reminder (scheduled post)
@@ -63,12 +65,8 @@ class Helper {
                     // printf("<br />Converted \" %s \" to a scheduled date/time = %s", $content, $schedule_at);
 
                     // get/create rest text
-                    if ($rest != '') {
-                        $rest_text = "Extra info you provided: " . $rest;
-                    } else {
-                        $rest_text = '';
-                    }
-
+                    $rest_text = Helper::buildRestText($pre_string, $post_string);
+                   
                     $replied_to_toot_url = $status->getRepliedToTootURL(array(
                         "mention_status_id" => $mention->status->id,
                         "mention_status_in_reply_to_id" => $mention->status->in_reply_to_id,
@@ -102,9 +100,11 @@ class Helper {
                 // try to convert content to datetime delta
                 $helper = new Helper();
 
-                $dateandrest = $helper->getScheduledatDate($content, $mention);
-                $schedule_at = $dateandrest['scheduledate']; // this is in UTC format
-                $rest = $dateandrest['rest']; // this is the second part of the content
+                $dateandcontent = $helper->getScheduledatDate($content, $mention);
+                $schedule_at = $dateandcontent['scheduledate']; // this is in UTC format
+                $pre_string = $dateandcontent['pre_string']; // this is the text before the date part of the string
+                $post_string = $dateandcontent['post_string']; // this is the text before the date part of the string
+
                 if ($schedule_at) {
                     // We have a correct datetime formatted delta. So it's time to do two things:
                     // 1. build status update to set a reminder (scheduled post)
@@ -114,12 +114,8 @@ class Helper {
                     // printf("<br />Converted \" %s \" to a scheduled date/time = %s", $content, $schedule_at);
 
                     // get/create rest text
-                    if ($rest != '') {
-                        $rest_text = "Extra info you provided: " . $rest;
-                    } else {
-                        $rest_text = '';
-                    }
-
+                    $rest_text = Helper::buildRestText($pre_string, $post_string);
+                    
                     $in_reply_to_id = $mention->status->id;
                     $visibility = 'public'; // Set to public for promotion of hashtag.
                     $language = 'en';
@@ -336,6 +332,30 @@ class Helper {
         return filter_var($mention->status->in_reply_to_id, FILTER_VALIDATE_INT);
     }
 
+    public static function buildRestText($pre, $post) {
+        $rest_text = '';
+
+        if ($pre != '') {
+            $pre = "You mentioned: " . $pre;
+        }
+
+        if ($post != '') {
+                $post = "Extra info you provided: " . $post;
+        }
+    
+        if (($pre != '') && ($post != '')) {
+            $rest_text = $pre . '. ' . $post;
+        }
+
+        if (($pre != '') && ($post == '')) {
+            $rest_text = $pre . '. ';
+        }
+
+        if (($pre == '') && ($post != '')) {
+            $rest_text = $post . '. ';
+        }
+        return $rest_text;
+}
     // Inspired by code found here: https://9to5answer.com/converting-words-to-numbers-in-php
 
     function strlenSort($a, $b) {
@@ -358,7 +378,7 @@ class Helper {
          * @param string $str Contains the content of the toot
          * @param object $mention Contains the mention object
          * 
-         * @return array scheduledate datetime of reminder, rest_text second part of reminder text
+         * @return array scheduledate datetime of reminder, pre_string, post_string other parts of reminder text
          * 
          */
 
@@ -369,11 +389,31 @@ class Helper {
             'hundred' => '100', 'thousand' => '1000', 'million' => '1000000', 'billion' => '1000000000'
         );
 
-        //  initialize rest text variable
-        $rest = null;
+        // remove part of string after break words
+        $break_words = array('second', 'seconds', 'minute', 'minutes', 'hour', 'hours', 'day', 'days', 'week', 'weeks', 'month', 'months', 'year', 'years', 'tomorrow');
+        $break_words = str_replace(',', '|', implode(',', $break_words));
 
+        //  initialize rest text variables
+        $pre_str = '';
+        $post_str = '';
+
+        // split my string into pieces, this is my last reward
+        $parts = explode('@remindme', $str);
+        $time_str = '';
+        $pre_str = '';
+        foreach ($parts as $part) {
+            if (preg_match('(' . $break_words . ')', $part) === 1) {
+                // this part contains the time stuff, and possibly some more text
+                $time_str = $part;
+            } else {
+                // this part does not contain the time stuff, let's save it too!
+                $pre_str = $part;
+            }
+        }
+        
         // echo "\$str = " . $str . "<br />";
-        preg_match_all('#((?:^|and|,| |-)*(\b' . implode('\b|\b', array_keys($keys)) . '\b))+#i', $str, $tokens);
+        preg_match_all('#((?:^|and|,| |-)*(\b' . implode('\b|\b', array_keys($keys)) . '\b))+#i', $time_str, $tokens);
+        
         // print_r($tokens);
         $tokens = $tokens[0];
         usort($tokens, array($this, 'strlenSort'));
@@ -403,25 +443,20 @@ class Helper {
             }
             $total = bcadd($total, $num);
             // echo "<br />$token : $total<br />";
-            $str = preg_replace("#\b$token\b#i", number_format($total), $str);
+            $time_str = preg_replace("#\b$token\b#i", number_format($total), $time_str);
         }
 
-        // remove part of string after break words
-        $break_words = array('second', 'seconds', 'minute', 'minutes', 'hour', 'hours', 'day', 'days', 'week', 'weeks', 'month', 'months', 'year', 'years');
-        $break_words = str_replace(',', '|', implode(',', $break_words));
         $matches = '';
-        preg_match_all('~\b(' . $break_words . ')\b~i', $str, $matches);
-        // echo '<br/>$str:' . $str . '<br />';
+        preg_match_all('~\b(' . $break_words . ')\b~i', $time_str, $matches);
+        // echo '<br/>$time_str:' . $time_str . '<br />';
         // echo '<br/>Matches:' . print_r($matches, true) . '<br />';
         if (is_array($matches) && !empty($matches[0])) {
             // break the string in two parts
             // time part and rest text
-            $string_array = explode($matches[0][0], $str);
-            $str = $string_array[0] . $matches[0][0]; // time part
+            $string_array = explode($matches[0][0], $time_str);
+            $time_str = $string_array[0] . $matches[0][0]; // time part
             if (array_key_exists(1, $string_array)) {
-                $rest = strip_tags($string_array[1]); // the rest text
-            } else {
-                $rest = '';
+                $post_str = strip_tags($string_array[1]); // the rest text
             }
         }
 
@@ -431,7 +466,7 @@ class Helper {
         // Remove some omit words
         $omit_words = array('in', 'on', 'and', 'remind', 'me');
 
-        $content = ltrim(preg_replace('/(\s+|^)@\S+/', '', strip_tags($str)));
+        $content = ltrim(preg_replace('/(\s+|^)@\S+/', '', strip_tags($time_str)));
         // echo "content after @ removal: $content<br />";
         // $content = "in 1 minute";
         $content_array = array_diff(explode(' ', $content), $omit_words);
@@ -546,7 +581,8 @@ class Helper {
 
         return array(
             "scheduledate" => $scheduledate,
-            "rest" => $rest
+            "pre_string" => $pre_str,
+            "post_string" => $post_str
         );
     }
 }

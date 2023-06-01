@@ -18,7 +18,6 @@ When called it will:
 
 */
 // TODO Add logging - replace var_dumps and echos
-// TODO Add second part of remindme toot (after relative time) to reminder
 
 include('classLoader.php');
 
