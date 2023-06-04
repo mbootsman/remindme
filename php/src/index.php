@@ -19,7 +19,7 @@ When called it will:
 */
 // TODO Add logging - replace var_dumps and echos
 
-include('classLoader.php');
+include "classLoader.php";
 
 // The main logic
 // Calls all methods to process notifications

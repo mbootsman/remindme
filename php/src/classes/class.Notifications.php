@@ -1,22 +1,26 @@
 <?php
 
 class Notifications {
-
     function getMentions() {
         /**
          * Get notifications from Mastodon, only non-processed, new notifications of type `mention`
-         * 
+         *
          * @return array with not yet processed mention objects or false if no mentions found
-         * 
+         *
          */
 
-        $mentions = array();
+        $mentions = [];
 
         // Build request parameters
-        $api_parameters = array(
-            "exclude_types" => array("follow", "favourite", "reblog", "poll", "follow_request"),
-
-        );
+        $api_parameters = [
+            "exclude_types" => [
+                "follow",
+                "favourite",
+                "reblog",
+                "poll",
+                "follow_request",
+            ],
+        ];
 
         // Store last processed notification ID
         $since_id = Helper::getLastSeenMentionId();
@@ -25,10 +29,10 @@ class Notifications {
             $api_parameters["since_id"] = $since_id;
         }
 
-        $parameters = array(
+        $parameters = [
             "api_parameters" => $api_parameters,
-            "api_uri" => "/api/v1/notifications"
-        );
+            "api_uri" => "/api/v1/notifications",
+        ];
 
         $result = Helper::doCurlGETRequest($parameters);
 
@@ -43,7 +47,7 @@ class Notifications {
 
         // loop through all mentions
         foreach ($result_array as $object) {
-            if ($object->type == 'mention') {
+            if ($object->type == "mention") {
                 // check mention id in file
                 if ($mention_id_from_file = Helper::getLastSeenMentionId()) {
                     // echo "Mention ID found in file: " . $mention_id_from_file . "<br />";
