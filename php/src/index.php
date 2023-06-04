@@ -18,17 +18,40 @@ When called it will:
 
 */
 // TODO Add logging - replace var_dumps and echos
-
+// TODO add get method to test and add unique token for this
 include "classLoader.php";
+include "env.php";
 
-// The main logic
-// Calls all methods to process notifications
+// for testing purposes
+// check get_token
+$token = $_GET["token"];
+if ($token) {
+    // only use the numbers for safety
+    $token = preg_replace("/[^0-9]/", "", $token);
+    // check if token is valid
+    if ($token == $env["get_token"]) {
+        // valid token.
+        // now get the string to check
+        $string = $_GET["str"];
+        // try to convert content to datetime delta
+        $helper = new Helper();
+        $dateandcontent = $helper->getScheduledatDate($string, null);
+        echo "<pre>";
+        var_dump($dateandcontent);
+        echo "</pre";
+    } else {
+        echo "token is invalid";
+    }
+} else {
+    // The main logic
+    // Calls all methods to process notifications
 
-// Let's start with getting the notifications
-$notifications = new Notifications();
-$mentions = $notifications->getMentions();
+    // Let's start with getting the notifications
+    $notifications = new Notifications();
+    $mentions = $notifications->getMentions();
 
-// If we have mentions we have not yet processed, process 'em
-if ($mentions) {
-    Helper::ProcessMentions($mentions);
+    // If we have mentions we have not yet processed, process 'em
+    if ($mentions) {
+        Helper::ProcessMentions($mentions);
+    }
 }
