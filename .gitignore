@@ -3,6 +3,7 @@ php/src/carbontest.php
 php/src/composer.phar
 php/src/env.php
 php/src/filetest.php
+getpushnotification.php
 logs/*
 deploy.sh
 file.txt
