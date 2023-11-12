@@ -26,9 +26,9 @@ include "classLoader.php";
 
 // Let's start with getting the notifications
 // $notifications = new Notifications();
-$mentions = $notifications->getMentions();
+// $mentions = $notifications->getMentions();
 
 // If we have mentions we have not yet processed, process 'em
-if ($mentions) {
-    Helper::ProcessMentions($mentions);
-}
+// if ($mentions) {
+//     Helper::ProcessMentions($mentions);
+// }
