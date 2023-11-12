@@ -25,7 +25,7 @@ include "classLoader.php";
 // Calls all methods to process notifications
 
 // Let's start with getting the notifications
-$notifications = new Notifications();
+// $notifications = new Notifications();
 $mentions = $notifications->getMentions();
 
 // If we have mentions we have not yet processed, process 'em
