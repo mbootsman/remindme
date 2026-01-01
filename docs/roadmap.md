@@ -7,7 +7,7 @@
 
 ## Phase 1: MVP
 - [ ] Mastodon integration: receive DMs
-- [ ] Parser: relative time ("in X minutes/hours/days")
+- [ ] Parser: relative time ("in X minutes/hours/days") use Carbon?
 - [ ] Create reminder and store in DB
 - [ ] Scheduler/worker for due reminders
 - [ ] Send DM notification

@@ -1,6 +1,6 @@
 {
     "require": {
-        "nesbot/carbon": "^2.63"
+        "nesbot/carbon": "^3"
     },
     "config": {
         "platform-check": false
