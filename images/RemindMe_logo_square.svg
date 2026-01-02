@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="977.82898"
+   height="976.97284"
+   viewBox="0 0 977.82908 976.97283"
+   role="img"
+   aria-label="RemindMe logo (flat)"
+   version="1.1"
+   id="svg3093"
+   sodipodi:docname="RemindMe_logo_square.svg"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   inkscape:export-filename="RemindMe_logo_square.webp"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs3097">
+    <inkscape:path-effect
+       effect="powerstroke"
+       id="path-effect5104"
+       is_visible="true"
+       lpeversion="1"
+       offset_points="0.5,0"
+       not_jump="true"
+       sort_points="true"
+       interpolator_type="CentripetalCatmullRom"
+       interpolator_beta="0.75"
+       start_linecap_type="butt"
+       linejoin_type="spiro"
+       miter_limit="4"
+       scale_width="1"
+       end_linecap_type="butt" />
+    <inkscape:path-effect
+       effect="simplify"
+       id="path-effect5102"
+       is_visible="true"
+       lpeversion="1"
+       steps="1"
+       threshold="0.0076923077"
+       smooth_angles="0"
+       helper_size="0"
+       simplify_individual_paths="false"
+       simplify_just_coalesce="false"
+       step="1" />
+  </defs>
+  <sodipodi:namedview
+     id="namedview3095"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     showguides="true"
+     inkscape:zoom="0.66164992"
+     inkscape:cx="481.37239"
+     inkscape:cy="620.41873"
+     inkscape:window-width="1917"
+     inkscape:window-height="1285"
+     inkscape:window-x="26"
+     inkscape:window-y="23"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg3093" />
+  <!-- Flat-color version (no gradients/filters) for maximum compatibility -->
+  <rect
+     style="font-variation-settings:'wdth' 75, 'wght' 700;fill:#1b4fae;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:4;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill"
+     id="rect8527"
+     width="977.82898"
+     height="976.97284"
+     x="0"
+     y="0"
+     ry="191.51689"
+     inkscape:label="background" />
+  <rect
+     style="font-variation-settings:'wdth' 75, 'wght' 700;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:12;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill"
+     id="rect9308"
+     width="941.56781"
+     height="940.84741"
+     x="18.130585"
+     y="18.062714"
+     ry="191.51689"
+     inkscape:label="background border" />
+  <g
+     id="bell_body"
+     transform="matrix(4.2969999,0.84537433,-0.84537433,4.2969999,33.86074,-32.976248)">
+    <g
+       id="bell_clapper">
+      <path
+         d="m 136.73441,147.16903 c 0,-23.81565 13.60895,-39.12571 32.32124,-39.12571"
+         fill="none"
+         stroke="#fff1b0"
+         stroke-opacity="0.55"
+         stroke-width="8.50559"
+         stroke-linecap="round"
+         id="path3078"
+         transform="matrix(1.1756976,0,0,1.1756976,-84.618567,-90.773633)" />
+      <circle
+         cx="120"
+         cy="170"
+         r="18"
+         fill="#f2b800"
+         id="circle3071" />
+      <circle
+         cx="120"
+         cy="168"
+         r="10"
+         fill="#e19a00"
+         id="circle3073" />
+      <ellipse
+         cx="120.04416"
+         cy="28.723129"
+         fill="#f2b800"
+         id="circle3266"
+         rx="18"
+         ry="21.290874"
+         style="fill:#ffcc2a;fill-opacity:1;stroke-width:1.08758" />
+    </g>
+    <path
+       d="M 120,22 C 88,22 64,46 64,78 v 32 c 0,10 -6,20 -16,26 -8,4 -10,14 -4,20 8,8 26,12 48,14 h 56 c 22,-2 40,-6 48,-14 6,-6 4,-16 -4,-20 -10,-6 -16,-16 -16,-26 V 78 C 176,46 152,22 120,22 Z"
+       fill="#ffcc2a"
+       id="path3068" />
+  </g>
+  <g
+     id="notification_dot"
+     transform="matrix(4.2418677,0,0,4.2418677,862.95078,295.35282)">
+    <circle
+       cx="-10.939493"
+       cy="-11.621471"
+       r="22"
+       fill="#e5342a"
+       id="circle3082" />
+  </g>
+</svg>
