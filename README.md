@@ -1,4 +1,4 @@
-# Mastodon Reminder Bot
+# RemindMe - A Mastodon Reminder Bot
 
 A Mastodon reminder service that lets you create reminders using natural language, via DM or mention.
 

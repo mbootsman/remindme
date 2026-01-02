@@ -1,4 +1,4 @@
-# Roadmap
+# RemindMe - Roadmap
 
 ## Phase 0: Foundations
 - [ ] Decide license, code of conduct, contribution flow

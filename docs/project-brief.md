@@ -1,4 +1,4 @@
-# Project brief
+# RemindMe - Project brief
 
 This document describes the problem, goals, MVP scope, and constraints for the Mastodon Reminder Bot.
 
