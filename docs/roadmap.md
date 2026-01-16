@@ -3,7 +3,7 @@
 ## Phase 0: Foundations
 - [x] Decide [license](/LICENSE), [code of conduct](/CODE_OF_CONDUCT.md), [contribution flow](/docs/CONTRIBUTING.md)
 - [x] Define [MVP scope](/docs/mvp.md) and [success metrics](/docs/success-metrics.md)
-- [ ] Pick tech stack (language, DB, hosting)
+- [x] Pick tech stack (language, DB, hosting)
 
 ## Phase 1: MVP
 - [ ] Mastodon integration: receive DMs
