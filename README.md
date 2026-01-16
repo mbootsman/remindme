@@ -18,10 +18,11 @@ Early stage. Starting with a public project brief and roadmap, then (re)building
 - Project brief: [docs/project-brief.md](docs/project-brief.md)
 - Roadmap: [docs/roadmap.md](docs/roadmap.md)
 - MVP Scope: [docs/mvp.md](docs/mvp.md)
-- Decisions (ADRs): docs/decisions/
+- Decisions (ADRs): [docs/decisions/](docs/decisions/)
+- Operations: [docs/ops.md](docs/ops.md)
 
 ## Contributing
-See CONTRIBUTING.md.
+See [CONTRIBUTING.md](CONTRIBUTING.MD).
 
 ## License
-See LICENSE.
+See [LICENSE](LICENSE).
