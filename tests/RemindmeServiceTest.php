@@ -8,7 +8,7 @@ use mbootsman\Remindme\Config;
 use mbootsman\Remindme\Db;
 use mbootsman\Remindme\RemindMeService;
 
-final class RemindMeTest extends TestCase {
+final class RemindMeServiceTest extends TestCase {
     protected function setUp(): void {
         // Freeze time for predictable tests
         CarbonImmutable::setTestNow(
