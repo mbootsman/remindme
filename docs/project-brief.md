@@ -15,8 +15,4 @@ Build a service that lets Mastodon users create reminders using natural language
 - Deep calendar integrations (maybe later/premium?)
 
 ## MVP requirements
-- DM-based reminder creation
-- Relative time parsing ("in X minutes/hours/days")
-- Commands: help, list, cancel
-- User timezone setting
-- Reminder delivery via DM
+See [MVP Scope](/docs/mvp.md)
