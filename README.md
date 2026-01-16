@@ -15,8 +15,8 @@ Early stage. Starting with a public project brief and roadmap, then (re)building
 - Send reminder notifications via DM
 
 ## Docs
-- Project brief: docs/project-brief.md
-- Roadmap: docs/roadmap.md
+- Project brief: [docs/project-brief.md](docs/project-brief.md)
+- Roadmap: [docs/roadmap.md](docs/roadmap.md)
 - Architecture: docs/architecture.md
 - Decisions (ADRs): docs/decisions/
 
