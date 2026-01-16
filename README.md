@@ -17,7 +17,7 @@ Early stage. Starting with a public project brief and roadmap, then (re)building
 ## Docs
 - Project brief: [docs/project-brief.md](docs/project-brief.md)
 - Roadmap: [docs/roadmap.md](docs/roadmap.md)
-- Architecture: docs/architecture.md
+- MVP Scope: [docs/mvp.md](docs/mvp.md)
 - Decisions (ADRs): docs/decisions/
 
 ## Contributing

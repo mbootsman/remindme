@@ -1,8 +1,8 @@
 # RemindMe - Roadmap
 
 ## Phase 0: Foundations
-- [ ] Decide license, code of conduct, contribution flow
-- [ ] Define MVP scope and success metrics
+- [x] Decide [license](/LICENSE), [code of conduct](/CODE_OF_CONDUCT.md), [contribution flow](/docs/CONTRIBUTING.md)
+- [x] Define [MVP scope](/docs/mvp.md) and [success metrics](/docs/success-metrics.md)
 - [ ] Pick tech stack (language, DB, hosting)
 
 ## Phase 1: MVP
@@ -12,7 +12,7 @@
 - [ ] Scheduler/worker for due reminders
 - [ ] Send DM notification
 - [ ] Commands: help, list, cancel
-- [ ] Basic logging and rate limiting
+- [ ] Basic logging (for storing success metrics) and rate limiting
 
 ## Phase 2: Quality
 - [ ] Better parsing (tomorrow, next Friday)
