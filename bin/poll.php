@@ -10,7 +10,7 @@ use mbootsman\Remindme\RemindMeService;
 use mbootsman\Remindme\Text;
 
 $root = dirname(__DIR__);
-Dotenv::createImmutable($root)->safeLoad();
+Dotenv::createImmutable($root)->load();
 
 $cfg = Config::fromEnv();
 date_default_timezone_set($cfg->timezone);
@@ -22,7 +22,6 @@ $svc = new RemindMeService($db, $cfg);
 $since = $db->get("last_notification_id");
 $notifications = $api->getMentionNotifications($since, 40);
 
-var_dump($since);
 // First run bootstrap: store the newest notification id and do not process old items.
 if (!$since) {
     $bootstrapMax = 0;
