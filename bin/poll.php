@@ -68,6 +68,13 @@ foreach ($notifications as $n) {
 
     $reply = $svc->handleCommand((string)$uid, (string)$acct, $statusId, $plain);
 
+    // If the service returns null, it means "no reply".
+    // We use this to avoid auto-replying with help text when someone just mentions the bot
+    // without actually trying a "remind me ..." command.
+    if ($reply === null) {
+        continue;
+    }
+
     // Reply in the same direct thread
     $api->postStatus($reply, "direct", $statusId);
 }

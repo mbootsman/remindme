@@ -10,7 +10,8 @@ final class RemindMeService {
     public function __construct(private Db $db, private Config $cfg) {
     }
 
-    public function handleCommand(string $userId, string $userAcct, string $sourceStatusId, string $plainText): string {
+    /// Handles an incoming command and returns a reply text.
+    public function handleCommand(string $userId, string $userAcct, string $sourceStatusId, string $plainText): ?string {
         $t = trim($plainText);
 
         if (preg_match("/^(help|\\?)$/i", $t)) {
@@ -18,7 +19,7 @@ final class RemindMeService {
         }
 
         if (preg_match("/^list$/i", $t)) {
-            return $this->listText($userId,$userAcct);
+            return $this->listText($userId, $userAcct);
         }
 
         if (preg_match("/^(cancel|delete)\\s+(\\d+)$/i", $t, $m)) {
@@ -28,7 +29,12 @@ final class RemindMeService {
         [$dueUtc, $task] = $this->parseDueAndTask($t);
 
         if (!$dueUtc || $task === "") {
-            return $this->helpText($userAcct, "I could not understand that reminder. Include a time and a task.");
+            // Only show help text if the user seems to be trying to set a reminder, otherwise ignore. 
+            // Case insensitive match to be more user-friendly.
+            if (preg_match("/\\bremind\\s+me\\b/i", $t)) { 
+                return $this->helpText($userAcct, "I could not understand that reminder. Include a time and a task.");
+            }
+            return null; // No reply for non "remind me" mentions
         }
 
         $id = $this->insertReminder($userId, $userAcct, $sourceStatusId, $task, $dueUtc);
