@@ -9,7 +9,8 @@ use mbootsman\Remindme\MastodonHttp;
 use mbootsman\Remindme\RemindMeService;
 use mbootsman\Remindme\Text;
 
-Dotenv::createImmutable(__DIR__ . "/..")->safeLoad();
+$root = dirname(__DIR__);
+Dotenv::createImmutable($root)->safeLoad();
 
 $cfg = Config::fromEnv();
 date_default_timezone_set($cfg->timezone);
@@ -21,7 +22,19 @@ $svc = new RemindMeService($db, $cfg);
 $since = $db->get("last_notification_id");
 $notifications = $api->getMentionNotifications($since, 40);
 
-if (!$notifications) {
+var_dump($since);
+// First run bootstrap: store the newest notification id and do not process old items.
+if (!$since) {
+    $bootstrapMax = 0;
+    foreach ($notifications as $n) {
+        $nid = (int)($n["id"] ?? 0);
+        if ($nid > $bootstrapMax) $bootstrapMax = $nid;
+    }
+
+    if ($bootstrapMax > 0) {
+        $db->set("last_notification_id", (string)$bootstrapMax);
+    }
+
     exit(0);
 }
 

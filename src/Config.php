@@ -1,7 +1,7 @@
 <?php
-
 namespace mbootsman\Remindme;
 
+use Dotenv\Dotenv;
 /**
  * Config
  *
@@ -28,16 +28,20 @@ final class Config {
      * Throws RuntimeExceptionif any required variable is missing on startup.
      */
     public static function fromEnv(): self {
+        
+        $root = dirname(__DIR__);
+        Dotenv::createImmutable($root)->load();
+
         /** Base URL of the Mastodon instance, e.g. https://mastodon.social */
-        $baseUrl = rtrim((string)getenv("MASTODON_BASE_URL"), "/");
+        $baseUrl = rtrim((string)$_ENV["MASTODON_BASE_URL"], "/");
         /** Access token for the bot account (needs read notifications + post statuses) */
-        $token   = (string)getenv("MASTODON_ACCESS_TOKEN");
+        $token   = (string)$_ENV["MASTODON_ACCESS_TOKEN"];
         /** Path to the SQLite database file, e.g. data/remindme.sqlite */
-        $dbPath  = (string)getenv("DB_PATH");
+        $dbPath  = (string)$_ENV["DB_PATH"];
         /** Bot handle used to strip leading "@remindme" from incoming text */
-        $handle  = (string)getenv("BOT_HANDLE");
+        $handle  = (string)$_ENV["BOT_HANDLE"];
         /** Default timezone for parsing and formatting reminders */
-        $tz      = (string)getenv("DEFAULT_TIMEZONE") ?: "UTC";
+        $tz      = (string)$_ENV["DEFAULT_TIMEZONE"] ?: "UTC";
 
         if ($baseUrl === "" || $token === "" || $dbPath === "" || $handle === "") {
             throw new \RuntimeException("Missing required env vars. Check .env");
