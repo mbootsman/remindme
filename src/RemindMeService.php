@@ -5,6 +5,7 @@ namespace mbootsman\Remindme;
 use Carbon\CarbonImmutable;
 use DateTimeZone;
 use PDO;
+use mbootsman\Remindme\Text;
 
 final class RemindMeService {
     public function __construct(private Db $db, private Config $cfg) {
@@ -31,7 +32,7 @@ final class RemindMeService {
         if (!$dueUtc || $task === "") {
             // Only show help text if the user seems to be trying to set a reminder, otherwise ignore. 
             // Case insensitive match to be more user-friendly.
-            if (preg_match("/\\bremind\\s+me\\b/i", $t)) { 
+            if (Text::looksLikeCommand($t)) {
                 return $this->helpText($userAcct, "I could not understand that reminder. Include a time and a task.");
             }
             return null; // No reply for non "remind me" mentions
@@ -242,7 +243,7 @@ final class RemindMeService {
     private function helpText(string $userAcct, ?string $prefix = null): string {
         $lines = [];
         if ($prefix) $lines[] = "@{$userAcct} {$prefix}";
-        $lines[] = "@{$userAcct} Try:";
+        $lines[] = "@{$userAcct} Here are some instructions on how to use me. Try:";
         $lines[] = "- remind me in 2 days about renew domain";
         $lines[] = "- remind me tomorrow at 09:00 about call the dentist";
         $lines[] = "- remind me next monday at 10:00 about invoicing";

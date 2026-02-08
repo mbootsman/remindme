@@ -57,12 +57,20 @@ foreach ($notifications as $n) {
     $plain = Text::removeLeadingBotHandle($plain, $cfg->botHandle);
 
     // Privacy rule: only accept direct messages.
+    $trimmed = trim($plain);
+
+    // Only respond if the user is actually trying to use the bot.
+    $looksLikeCommand = Text::looksLikeCommand($trimmed);
+
+
     if ($visibility !== "direct") {
-        $api->postStatus(
-            "@{$acct} Please send me a direct message so I can store reminders privately. Type: help",
-            "public",
-            $statusId
-        );
+        if ($looksLikeCommand) {
+            $api->postStatus(
+                "@{$acct} Please send me a direct message so I can store reminders privately. Type: help",
+                "public",
+                $statusId
+            );
+        }
         continue;
     }
 
