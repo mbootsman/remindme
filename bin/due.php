@@ -1,5 +1,20 @@
 #!/usr/bin/env php
 <?php
+
+// Locking mechanism to prevent multiple instances of this script running at the same time.
+$lockDir = dirname(__DIR__) . "/data/locks";
+@mkdir($lockDir, 0775, true);
+$lockFile = $lockDir . "/due.lock";
+$lockHandle = fopen($lockFile, "c");
+if (!$lockHandle) {
+    fwrite(STDERR, "Could not open lock file: {$lockFile}\n");
+    exit(1);
+}
+if (!flock($lockHandle, LOCK_EX | LOCK_NB)) {
+    // Another instance is running.
+    exit(0);
+}
+
 require __DIR__ . "/../vendor/autoload.php";
 
 use Dotenv\Dotenv;
@@ -7,7 +22,6 @@ use Carbon\CarbonImmutable;
 use mbootsman\Remindme\Config;
 use mbootsman\Remindme\Db;
 use mbootsman\Remindme\MastodonHttp;
-use PDO;
 
 Dotenv::createImmutable(__DIR__ . "/..")->safeLoad();
 
