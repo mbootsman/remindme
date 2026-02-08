@@ -55,7 +55,7 @@ final class RemindMeServiceNegativeParsingTest extends TestCase
 
         // Should respond with the standard failure+help output
         $this->assertStringContainsString("I could not understand that reminder", $reply);
-        $this->assertStringContainsString("@marcel Try:", $reply);
+        $this->assertStringContainsString("@marcel Here are some instructions on how to use me. Try:", $reply);
     }
 
     public static function invalidInputsProvider(): array
