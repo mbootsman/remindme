@@ -47,7 +47,7 @@ final class RemindMeService {
         $text = trim($input);
         $text = preg_replace("/^remind\\s+me\\s*/i", "", $text) ?? $text;
         // 1) "in N unit"
-        if (preg_match("/\\bin\\s+(\\d+)\\s+(minutes?|mins?|hours?|days?|weeks?|months?)\\b/i", $text, $m, PREG_OFFSET_CAPTURE)) {
+        if (preg_match("/\\bin\\s+(\\d+)\\s+(minutes?|hours?|days?|weeks?|months?)\\b/i", $text, $m, PREG_OFFSET_CAPTURE)) {
             $n = (int)$m[1][0];
             $unitRaw = strtolower($m[2][0]);
             $matchStart = $m[0][1];
@@ -91,7 +91,16 @@ final class RemindMeService {
             $dueLocal = CarbonImmutable::tomorrow($tz)
                 ->setTime((int)$nowLocal->format("H"), (int)$nowLocal->format("i"));
 
-            $time = $this->extractTime($text, $matchStart + $matchLen);
+            $timePos = $matchStart + $matchLen;
+
+            $hasAt = $this->hasAtToken($text, $timePos);
+            $time  = $this->extractTime($text, $timePos);
+
+            // If user wrote "at ..." but we can't parse a valid time, treat as invalid input.
+            if ($hasAt && !$time) {
+                return [null, ""];
+            }
+
             if ($time) {
                 $dueLocal = $dueLocal->setTime($time["h"], $time["m"]);
             }
@@ -124,8 +133,12 @@ final class RemindMeService {
             $matchStart = $m[0][1];
             $matchLen = strlen($m[0][0]);
 
-            $dueLocal = CarbonImmutable::parse($date, $tz)
-                ->setTime((int)$nowLocal->format("H"), (int)$nowLocal->format("i"));
+            $dateOnly = $this->parseStrictDateYmd($date);
+            if (!$dateOnly) {
+                return [null, ""];
+            }
+
+            $dueLocal = $dateOnly->setTime((int)$nowLocal->format("H"), (int)$nowLocal->format("i"));
 
             $time = $this->extractTime($text, $matchStart + $matchLen);
             if ($time) {
@@ -276,5 +289,30 @@ final class RemindMeService {
         }
 
         return "@{$userAcct} Canceled reminder ID {$id}.";
+    }
+
+    private function parseStrictDateYmd(string $ymd): ?CarbonImmutable {
+        // Strict parsing: must match real calendar date and must not normalize.
+        // The "!" resets unspecified fields.
+        $dt = CarbonImmutable::createFromFormat("!Y-m-d", $ymd, $this->cfg->timezone);
+
+        if (!$dt) {
+            return null;
+        }
+
+        // Ensure no normalization happened (e.g. 2026-02-30 -> 2026-03-02).
+        if ($dt->format("Y-m-d") !== $ymd) {
+            return null;
+        }
+
+        return $dt;
+    }
+
+    private function hasAtToken(string $text, int $afterPos): bool {
+        $tail = substr($text, $afterPos);
+        if ($tail === false) {
+            return false;
+        }
+        return (bool)preg_match("/\\bat\\b/i", $tail);
     }
 }

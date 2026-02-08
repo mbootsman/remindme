@@ -7,7 +7,6 @@ use Carbon\CarbonImmutable;
 use mbootsman\Remindme\Config;
 use mbootsman\Remindme\Db;
 use mbootsman\Remindme\RemindMeService;
-use PDO;
 
 final class RemindMeServiceSyntaxTest extends TestCase
 {

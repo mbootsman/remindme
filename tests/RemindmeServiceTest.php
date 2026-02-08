@@ -37,7 +37,10 @@ final class RemindMeServiceTest extends TestCase {
         $reminderMessage = "@{$row['user_acct']} Reminder (ID: {$row['id']}): {$row['task']}";
 
         // Print it (PHPUnit can capture this unless you enable display)
-        fwrite(STDOUT, "\nWould send: {$reminderMessage}\nDue at (UTC): {$row['due_at_utc']}\n");
+        // Only print it if the test is run with PRINT_REMINDERS=1 to avoid noise in normal test runs.
+        if (getenv("PRINT_REMINDERS") === "1") {
+            fwrite(STDOUT, "\nWould send: {$reminderMessage}\nDue at (UTC): {$row['due_at_utc']}\n");
+        }
     }
 
     public function testHelpCommand(): void {
