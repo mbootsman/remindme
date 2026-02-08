@@ -8,11 +8,11 @@ Last aligned with MVP on 2026-02-08.
 - [x] Pick tech stack (language, DB, hosting)
 
 ## Phase 1: MVP
-- [ ] Mastodon integration: receive DMs
+- [x] Mastodon integration: receive DMs
 - [x] Parser (Carbon): in N minutes/hours/days/weeks/months; tomorrow; next monday..sunday; on YYYY-MM-DD; optional: at 14:30 / at 2pm / at 2:30pm
 - [x] Create reminder and store in DB
-- [ ] Scheduler/worker for due reminders
-- [ ] Send DM notification
+- [x] Scheduler/worker for due reminders
+- [x] Send DM notification
 - [x] Commands: help, list, cancel
 - [ ] Basic logging (for storing success metrics) and rate limiting
 

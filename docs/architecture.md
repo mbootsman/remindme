@@ -7,7 +7,7 @@ The MVP uses polling, a SQLite database, and two cron-run workers.
 
 ## Components
 
-### 1) Polling worker (src/poll.php)
+### 1) Polling worker (bin/poll.php)
 Responsibilities:
 - Fetch new direct message/mention notifications from Mastodon using since_id paging
 - Accept all visibility messages (details [here](https://docs.joinmastodon.org/entities/Status/#visibility))
@@ -23,7 +23,7 @@ Responsibilities:
 State:
 - Reads and updates `state.last_notification_id` in SQLite
 
-### 2) Due worker (src/due.php)
+### 2) Due worker (bin/due.php)
 Responsibilities:
 - Query due reminders where:
   - due_at_utc <= now_utc

@@ -32,8 +32,8 @@ Reasons:
 - Easy to migrate later to Postgres if needed
 
 ### Execution model
-- Polling worker: `src/poll.php`
-- Due worker: `src/due.php`
+- Polling worker: `bin/poll.php`
+- Due worker: `bin/due.php`
 - Run both via cron (every minute in production)
 
 ### Hosting
