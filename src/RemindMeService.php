@@ -18,7 +18,7 @@ final class RemindMeService {
         }
 
         if (preg_match("/^list$/i", $t)) {
-            return $this->listText($userAcct);
+            return $this->listText($userId,$userAcct);
         }
 
         if (preg_match("/^(cancel|delete)\\s+(\\d+)$/i", $t, $m)) {
@@ -246,16 +246,16 @@ final class RemindMeService {
         return implode("\n", $lines);
     }
 
-    private function listText(string $userAcct): string {
+    private function listText(string $userId, string $userAcct): string {
         $pdo = $this->db->pdo();
         $stmt = $pdo->prepare("
             SELECT id, task, due_at_utc
             FROM reminders
-            WHERE user_acct = :acct AND sent_at_utc IS NULL AND canceled_at_utc IS NULL
+            WHERE user_id = :uid AND sent_at_utc IS NULL AND canceled_at_utc IS NULL
             ORDER BY due_at_utc ASC
             LIMIT 5
         ");
-        $stmt->execute([":acct" => $userAcct]);
+        $stmt->execute([":uid" => $userId]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if (!$rows) {
