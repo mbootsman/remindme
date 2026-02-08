@@ -23,7 +23,8 @@ use mbootsman\Remindme\Config;
 use mbootsman\Remindme\Db;
 use mbootsman\Remindme\MastodonHttp;
 
-Dotenv::createImmutable(__DIR__ . "/..")->safeLoad();
+$root = dirname(__DIR__);
+Dotenv::createImmutable($root)->load();
 
 $cfg = Config::fromEnv();
 $db = new Db($cfg->dbPath);
