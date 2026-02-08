@@ -5,13 +5,12 @@ Let Mastodon users create reminders via direct messages or mentions using natura
 
 ## In scope (MVP)
 Input:
-- Direct messages (visibility: direct) only
+- Direct messages (visibility: direct) for all commands (help, list, cancel) and reminders
   - Commands:
     - help
     - list
     - cancel <id>
-- Mentions
-  - For mentions, only setting a reminder is supported. Other functions are to be executed by DM.
+- Mentions: only setting a reminder is supported; all other functions must be executed by DM
   
 Parsing:
 - English (first)

@@ -1,5 +1,7 @@
 # RemindMe - Roadmap
 
+Last aligned with MVP on 2026-02-08.
+
 ## Phase 0: Foundations
 - [x] Decide [license](/LICENSE), [code of conduct](/CODE_OF_CONDUCT.md), [contribution flow](/docs/CONTRIBUTING.md)
 - [x] Define [MVP scope](/docs/mvp.md) and [success metrics](/docs/success-metrics.md)
@@ -7,15 +9,15 @@
 
 ## Phase 1: MVP
 - [ ] Mastodon integration: receive DMs
-- [ ] Parser: relative time ("in X minutes/hours/days") use Carbon?
-- [ ] Create reminder and store in DB
+- [x] Parser (Carbon): in N minutes/hours/days/weeks/months; tomorrow; next monday..sunday; on YYYY-MM-DD; optional: at 14:30 / at 2pm / at 2:30pm
+- [x] Create reminder and store in DB
 - [ ] Scheduler/worker for due reminders
 - [ ] Send DM notification
-- [ ] Commands: help, list, cancel
+- [x] Commands: help, list, cancel
 - [ ] Basic logging (for storing success metrics) and rate limiting
 
 ## Phase 2: Quality
-- [ ] Better parsing (tomorrow, next Friday)
+- [ ] Parsing hardening: negative tests, strict validation, clearer error messages
 - [ ] Repetitions and retries
 - [ ] Monitoring and health endpoints
 
