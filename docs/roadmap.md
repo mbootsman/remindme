@@ -22,6 +22,7 @@ Last aligned with MVP on 2026-02-08.
 - [ ] Monitoring and health endpoints
 
 ## Phase 3: V1
+- [ ] Smart reminders for posts: let users save a link/status ID and get reminded later (for example: "remind me about this post in 2 days")
 - [ ] Recurring reminders
 - [ ] Web dashboard (optional)
 - [ ] Multi-language (EN/NL)
