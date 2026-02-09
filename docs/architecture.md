@@ -1,7 +1,7 @@
 # Architecture
 
 ## Overview
-The system is a Mastodon reminder bot that accepts direct messages (visibility: direct) and later sends reminders via direct message.
+The system is a Mastodon reminder bot that accepts direct messages and mentions and later sends reminders via direct message.
 
 The MVP uses polling, a SQLite database, and two cron-run workers.
 
