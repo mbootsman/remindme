@@ -10,7 +10,8 @@ Setup:
 1) composer install
 2) cp .env.example .env
 3) Set Mastodon token in .env
-4) Run tests: vendor/bin/phpunit
+4) **Regenerate LOG_SECRET** for security: `php -r "echo bin2hex(random_bytes(32));"` and copy to .env
+5) Run tests: vendor/bin/phpunit
 
 Manual run:
 - php bin/poll.php
@@ -30,12 +31,48 @@ Cron (every minute):
 - Back up the SQLite file: data/remindme.sqlite
 - Consider stopping workers briefly or using SQLite backup tooling if you start doing frequent backups.
 
-## Logging
-MVP:
-- stdout/stderr via cron mail or redirected to a logfile
-Suggested:
-- redirect cron output to logs/remindme.log (and rotate it)
+### Logging
+The bot writes non-PII metrics to `logs/remindme.log` in JSONL format (one JSON object per line).
+
+**Security**: User IDs are hashed with HMAC-SHA256 using the `LOG_SECRET` key, preventing rainbow table attacks and pre-computed hash lookups.
+
+### Log events
+- `reminder.created`: Reminder created (includes days_until_due, time_of_day categorization, anonymized user hash)
+- `reminder.sent`: Reminder delivered
+- `reminder.canceled`: Reminder canceled
+- `command`: Built-in command executed (help, list, cancel)
+- `parsing_error`: Failed to parse user input as reminder
+- `api_error`: Mastodon API error
+
+### Querying logs
+```bash
+# Count created reminders
+grep reminder.created logs/remindme.log | wc -l
+
+# Count unique users (last 24h, anonymized hashes)
+grep reminder.created logs/remindme.log | jq -r .user_hash | sort -u | wc -l
+
+# Peak times for reminders
+grep reminder.created logs/remindme.log | jq -r .time_of_day | sort | uniq -c
+
+# Average days until due
+grep reminder.created logs/remindme.log | jq -r .days_until_due | awk '{sum+=$1} END {print sum/NR}'
+```
+
+### Log rotation
+Use `logrotate` or similar to manage log file growth:
+```bash
+/path/to/logs/remindme.log {
+    daily
+    rotate 30
+    compress
+    delaycompress
+    missingok
+    notifempty
+}
+```
 
 ## Secrets
-- Store MASTODON_ACCESS_TOKEN in .env on the server
+- Store `MASTODON_ACCESS_TOKEN` in .env on the server
+- Store `LOG_SECRET` in .env on the server (regenerate per deployment with `php -r "echo bin2hex(random_bytes(32));"`; .env.example provides a starter key)
 - Never commit .env

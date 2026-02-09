@@ -19,6 +19,10 @@ The bot operates via two separate cron workers that run every minute:
   - `parseDueAndTask()` extracts due_utc and task text using Carbon
 - **`Db`** (src/Db.php): SQLite wrapper with WAL pragma for concurrent cron safety
   - Two tables: `state` (k/v pairs like last_notification_id) and `reminders`
+- **`Logger`** (src/Logger.php): JSONL metrics logging (non-PII, always-on)
+  - Logs: reminders created/sent/canceled, commands, parsing errors
+  - Hashes user IDs with HMAC-SHA256 (using LOG_SECRET) to prevent rainbow table attacks
+  - Categorizes reminder times (morning/afternoon/evening/night) for trend analysis
 - **`MastodonHttp`** (src/MastodonHttp.php): HTTP client wrapper around Guzzle
 - **`Text`** (src/Text.php): Static helper methods for HTML→text conversion and command detection
 - **`Config`** (src/Config.php): Environment variable reader (no .env access elsewhere)
@@ -82,6 +86,8 @@ All config comes from `.env` via `Config::fromEnv()`. Required vars:
 - `DB_PATH`: Path to SQLite file (e.g., `data/remindme.sqlite`)
 - `BOT_HANDLE`: Bot mention handle (e.g., `@remindme`)
 - `DEFAULT_TIMEZONE`: Default timezone for parsing (e.g., `Europe/Amsterdam`)
+- `LOG_PATH`: JSONL metrics log file (default: `logs/remindme.log`, optional)
+- `LOG_SECRET`: Secret key for HMAC hashing of user IDs in logs (prevents rainbow table attacks; generated on setup)
 
 ## Common Tasks & Where to Look
 

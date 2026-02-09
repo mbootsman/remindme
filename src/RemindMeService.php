@@ -8,7 +8,7 @@ use PDO;
 use mbootsman\Remindme\Text;
 
 final class RemindMeService {
-    public function __construct(private Db $db, private Config $cfg) {
+    public function __construct(private Db $db, private Config $cfg, private Logger $logger) {
     }
 
     /// Handles an incoming command and returns a reply text.
@@ -16,14 +16,17 @@ final class RemindMeService {
         $t = trim($plainText);
 
         if (preg_match("/^(help|\\?)$/i", $t)) {
+            $this->logger->logCommand("help");
             return $this->helpText($userAcct);
         }
 
         if (preg_match("/^list$/i", $t)) {
+            $this->logger->logCommand("list");
             return $this->listText($userId, $userAcct);
         }
 
         if (preg_match("/^(cancel|delete)\\s+(\\d+)$/i", $t, $m)) {
+            $this->logger->logCommand("cancel");
             return $this->cancel((int)$m[2], $userId, $userAcct);
         }
 
@@ -33,12 +36,15 @@ final class RemindMeService {
             // Only show help text if the user seems to be trying to set a reminder, otherwise ignore. 
             // Case insensitive match to be more user-friendly.
             if (Text::looksLikeCommand($t)) {
+                $this->logger->logParsingError();
                 return $this->helpText($userAcct, "I could not understand that reminder. Include a time and a task.");
             }
             return null; // No reply for non "remind me" mentions
         }
 
         $id = $this->insertReminder($userId, $userAcct, $sourceStatusId, $task, $dueUtc);
+        $nowUtc = CarbonImmutable::now("UTC");
+        $this->logger->logReminderCreated($userId, $dueUtc, $nowUtc);
 
         $dueLocal = $dueUtc->setTimezone(new DateTimeZone($this->cfg->timezone));
         return "@{$userAcct} Ok! I will remind you on {$dueLocal->format('Y-m-d H:i')} (timezone: {$this->cfg->timezone}). ID: {$id}";
@@ -295,6 +301,7 @@ final class RemindMeService {
             return "@{$userAcct} I could not cancel ID {$id} (maybe it does not exist, or it was already sent or canceled).";
         }
 
+        $this->logger->logReminderCanceled();
         return "@{$userAcct} Canceled reminder ID {$id}.";
     }
 

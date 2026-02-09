@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use Carbon\CarbonImmutable;
 use mbootsman\Remindme\Config;
 use mbootsman\Remindme\Db;
+use mbootsman\Remindme\Logger;
 use mbootsman\Remindme\RemindMeService;
 
 final class RemindMeServiceNegativeParsingTest extends TestCase
@@ -24,11 +25,14 @@ final class RemindMeServiceNegativeParsingTest extends TestCase
             "token",
             ":memory:",
             "@remindme",
-            "Europe/Amsterdam"
+            "Europe/Amsterdam",
+            sys_get_temp_dir() . "/test.log",
+            "test-secret"
         );
 
         $this->db = new Db(":memory:");
-        $this->svc = new RemindMeService($this->db, $cfg);
+        $logger = new Logger(sys_get_temp_dir() . "/test.log", "test-secret");
+        $this->svc = new RemindMeService($this->db, $cfg, $logger);
     }
 
     protected function tearDown(): void

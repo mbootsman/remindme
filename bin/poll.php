@@ -5,6 +5,7 @@ require __DIR__ . "/../vendor/autoload.php";
 use Dotenv\Dotenv;
 use mbootsman\Remindme\Config;
 use mbootsman\Remindme\Db;
+use mbootsman\Remindme\Logger;
 use mbootsman\Remindme\MastodonHttp;
 use mbootsman\Remindme\RemindMeService;
 use mbootsman\Remindme\Text;
@@ -16,8 +17,9 @@ $cfg = Config::fromEnv();
 date_default_timezone_set($cfg->timezone);
 
 $db = new Db($cfg->dbPath);
+$logger = new Logger($cfg->logPath, $cfg->logSecret);
 $api = new MastodonHttp($cfg);
-$svc = new RemindMeService($db, $cfg);
+$svc = new RemindMeService($db, $cfg, $logger);
 
 $since = $db->get("last_notification_id");
 $notifications = $api->getMentionNotifications($since, 40);

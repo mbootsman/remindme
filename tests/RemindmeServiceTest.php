@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Carbon\CarbonImmutable;
 use mbootsman\Remindme\Config;
 use mbootsman\Remindme\Db;
+use mbootsman\Remindme\Logger;
 use mbootsman\Remindme\RemindMeService;
 
 final class RemindMeServiceTest extends TestCase {
@@ -21,9 +22,10 @@ final class RemindMeServiceTest extends TestCase {
     }
 
     public function testCreatesReminderIn2Days(): void {
-        $cfg = new Config("https://example.invalid", "x", ":memory:", "@remindme", "Europe/Amsterdam");
+        $cfg = new Config("https://example.invalid", "x", ":memory:", "@remindme", "Europe/Amsterdam", sys_get_temp_dir() . "/test.log", "test-secret");
         $db = new Db(":memory:");
-        $svc = new RemindMeService($db, $cfg);
+        $logger = new Logger(sys_get_temp_dir() . "/test.log", "test-secret");
+        $svc = new RemindMeService($db, $cfg, $logger);
 
         $reply = $svc->handleCommand("u1", "marcel", "s1", "remind me in 1 month about paying the invoice");
 
@@ -44,9 +46,10 @@ final class RemindMeServiceTest extends TestCase {
     }
 
     public function testHelpCommand(): void {
-        $cfg = new Config("https://example.invalid", "x", ":memory:", "@remindme", "Europe/Amsterdam");
+        $cfg = new Config("https://example.invalid", "x", ":memory:", "@remindme", "Europe/Amsterdam", sys_get_temp_dir() . "/test.log", "test-secret");
         $db = new Db(":memory:");
-        $svc = new RemindMeService($db, $cfg);
+        $logger = new Logger(sys_get_temp_dir() . "/test.log", "test-secret");
+        $svc = new RemindMeService($db, $cfg, $logger);
 
         $reply = $svc->handleCommand("u1", "marcel", "s1", "help");
 

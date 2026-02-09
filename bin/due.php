@@ -21,6 +21,7 @@ use Dotenv\Dotenv;
 use Carbon\CarbonImmutable;
 use mbootsman\Remindme\Config;
 use mbootsman\Remindme\Db;
+use mbootsman\Remindme\Logger;
 use mbootsman\Remindme\MastodonHttp;
 
 $root = dirname(__DIR__);
@@ -28,6 +29,7 @@ Dotenv::createImmutable($root)->load();
 
 $cfg = Config::fromEnv();
 $db = new Db($cfg->dbPath);
+$logger = new Logger($cfg->logPath, $cfg->logSecret);
 $api = new MastodonHttp($cfg);
 
 $pdo = $db->pdo();
@@ -54,4 +56,6 @@ foreach ($rows as $r) {
 
     $upd = $pdo->prepare("UPDATE reminders SET sent_at_utc = :now WHERE id = :id");
     $upd->execute([":now" => $nowUtc, ":id" => $id]);
+
+    $logger->logReminderSent();
 }

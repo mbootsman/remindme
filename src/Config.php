@@ -18,7 +18,9 @@ final class Config {
         public readonly string $accessToken,
         public readonly string $dbPath,
         public readonly string $botHandle,
-        public readonly string $timezone
+        public readonly string $timezone,
+        public readonly string $logPath,
+        public readonly string $logSecret
     ) {
     }
 
@@ -42,11 +44,15 @@ final class Config {
         $handle  = (string)$_ENV["BOT_HANDLE"];
         /** Default timezone for parsing and formatting reminders */
         $tz      = (string)$_ENV["DEFAULT_TIMEZONE"] ?: "UTC";
+        /** Path to the JSONL log file for metrics, e.g. logs/remindme.log */
+        $logPath = (string)$_ENV["LOG_PATH"] ?: "logs/remindme.log";
+        /** Secret key for HMAC hashing of user IDs in logs (prevents rainbow table attacks) */
+        $logSecret = (string)$_ENV["LOG_SECRET"] ?: "";
 
         if ($baseUrl === "" || $token === "" || $dbPath === "" || $handle === "") {
             throw new \RuntimeException("Missing required env vars. Check .env");
         }
 
-        return new self($baseUrl, $token, $dbPath, $handle, $tz);
+        return new self($baseUrl, $token, $dbPath, $handle, $tz, $logPath, $logSecret);
     }
 }
