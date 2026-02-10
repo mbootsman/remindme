@@ -30,7 +30,9 @@ final class RemindMeServiceSyntaxTest extends TestCase
             "@remindme",
             "Europe/Amsterdam",
             sys_get_temp_dir() . "/test.log",
-            "test-secret"
+            "test-secret",
+            1000,
+            10000
         );
 
         $this->db = new Db(":memory:");
