@@ -81,7 +81,7 @@ Use `logrotate` or similar to manage log file growth:
 
 The bot enforces simple per-user rate limits to prevent misuse. These are configurable via environment variables:
 
-- `RATE_LIMIT_PER_MINUTE` — maximum number of reminders a single user may create within a 60-second window (default: `3`).
-- `RATE_LIMIT_PER_DAY` — maximum number of reminders a single user may create within 24 hours (default: `50`).
+- `RATE_LIMIT_PER_MINUTE` - maximum number of reminders a single user may create within a 60-second window (default: `3`).
+- `RATE_LIMIT_PER_DAY` - maximum number of reminders a single user may create within 24 hours (default: `50`).
 
 Adjust these values in your `.env` for the instance. The service enforces the limits and will reject attempts that exceed them; rejected creations are rolled back server-side.

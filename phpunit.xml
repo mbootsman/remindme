@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit bootstrap="vendor/autoload.php" colors="true">
+  <php>
+    <!-- Exempt tests from production rate limits by supplying high defaults -->
+    <env name="RATE_LIMIT_PER_MINUTE" value="1000" />
+    <env name="RATE_LIMIT_PER_DAY" value="10000" />
+  </php>
   <testsuites>
     <testsuite name="Remindme">
       <directory>tests</directory>

@@ -22,7 +22,7 @@ final class RemindMeServiceTest extends TestCase {
     }
 
     public function testCreatesReminderIn2Days(): void {
-        $cfg = new Config("https://example.invalid", "x", ":memory:", "@remindme", "Europe/Amsterdam", sys_get_temp_dir() . "/test.log", "test-secret");
+        $cfg = new Config("https://example.invalid", "x", ":memory:", "@remindme", "Europe/Amsterdam", sys_get_temp_dir() . "/test.log", "test-secret", 1000, 10000);
         $db = new Db(":memory:");
         $logger = new Logger(sys_get_temp_dir() . "/test.log", "test-secret");
         $svc = new RemindMeService($db, $cfg, $logger);
@@ -46,7 +46,7 @@ final class RemindMeServiceTest extends TestCase {
     }
 
     public function testHelpCommand(): void {
-        $cfg = new Config("https://example.invalid", "x", ":memory:", "@remindme", "Europe/Amsterdam", sys_get_temp_dir() . "/test.log", "test-secret");
+        $cfg = new Config("https://example.invalid", "x", ":memory:", "@remindme", "Europe/Amsterdam", sys_get_temp_dir() . "/test.log", "test-secret", 1000, 10000);
         $db = new Db(":memory:");
         $logger = new Logger(sys_get_temp_dir() . "/test.log", "test-secret");
         $svc = new RemindMeService($db, $cfg, $logger);

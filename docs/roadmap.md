@@ -14,7 +14,6 @@ Last aligned with MVP on 2026-02-08.
 - [x] Scheduler/worker for due reminders
 - [x] Send DM notification
 - [x] Commands: help, list, cancel
-- [ ] Basic logging (for storing success metrics) and rate limiting
 - [x] Basic logging (for storing success metrics)
 - [ ] Rate limiting
 
