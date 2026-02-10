@@ -43,6 +43,15 @@ final class RemindMeService {
         }
 
         $id = $this->insertReminder($userId, $userAcct, $sourceStatusId, $task, $dueUtc);
+        
+        // Rate limiting: ensure we don't create too many reminders for one user.
+        // This check runs after parsing but before acknowledging; if the user is over the limit
+        // we cancel the insertion and inform the user. Limits are defensive (per-minute and per-day).
+        $rateLimitMsg = $this->checkRateLimitAndPossiblyRevert($id, $userId, $userAcct);
+        if ($rateLimitMsg !== null) {
+            return $rateLimitMsg;
+        }
+
         $nowUtc = CarbonImmutable::now("UTC");
         $this->logger->logReminderCreated($userId, $dueUtc, $nowUtc);
 
@@ -320,6 +329,42 @@ final class RemindMeService {
         }
 
         return $dt;
+    }
+
+    /**
+     * Enforce simple rate limits on reminder creation.
+     * If the user exceeded a limit, remove the inserted reminder (by id) and return
+     * a user-facing message string. If not limited, return null.
+     */
+    private function checkRateLimitAndPossiblyRevert(int $insertedId, string $userId, string $userAcct): ?string {
+        $pdo = $this->db->pdo();
+
+        // Per-minute limit: configurable (default 3) creations in the last 60 seconds.
+        $oneMinuteAgo = CarbonImmutable::now('UTC')->subSeconds(60)->format(DATE_ATOM);
+        $stmt = $pdo->prepare("SELECT COUNT(1) FROM reminders WHERE user_id = :uid AND created_at_utc >= :since");
+        $stmt->execute([":uid" => $userId, ":since" => $oneMinuteAgo]);
+        $countMin = (int)$stmt->fetchColumn();
+        if ($countMin > $this->cfg->rateLimitPerMinute) {
+            // remove inserted reminder
+            $del = $pdo->prepare("DELETE FROM reminders WHERE id = :id");
+            $del->execute([":id" => $insertedId]);
+            $this->logger->logApiError('rate_limit', 'per_minute');
+            return "@{$userAcct} You're creating reminders too quickly. Please wait a minute and try again.";
+        }
+
+        // Per-day limit: configurable (default 50) creations in the last 24 hours.
+        $oneDayAgo = CarbonImmutable::now('UTC')->subDays(1)->format(DATE_ATOM);
+        $stmt = $pdo->prepare("SELECT COUNT(1) FROM reminders WHERE user_id = :uid AND created_at_utc >= :since");
+        $stmt->execute([":uid" => $userId, ":since" => $oneDayAgo]);
+        $countDay = (int)$stmt->fetchColumn();
+        if ($countDay > $this->cfg->rateLimitPerDay) {
+            $del = $pdo->prepare("DELETE FROM reminders WHERE id = :id");
+            $del->execute([":id" => $insertedId]);
+            $this->logger->logApiError('rate_limit', 'daily');
+            return "@{$userAcct} You've reached the daily limit for reminder creation. Try again tomorrow or contact support.";
+        }
+
+        return null;
     }
 
     private function hasAtToken(string $text, int $afterPos): bool {

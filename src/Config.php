@@ -20,7 +20,9 @@ final class Config {
         public readonly string $botHandle,
         public readonly string $timezone,
         public readonly string $logPath,
-        public readonly string $logSecret
+        public readonly string $logSecret,
+        public readonly int $rateLimitPerMinute = 3,
+        public readonly int $rateLimitPerDay = 50
     ) {
     }
 
@@ -49,10 +51,14 @@ final class Config {
         /** Secret key for HMAC hashing of user IDs in logs (prevents rainbow table attacks) */
         $logSecret = (string)$_ENV["LOG_SECRET"] ?: "";
 
+        // Rate limits (optional)
+        $rlMinute = isset($_ENV["RATE_LIMIT_PER_MINUTE"]) ? (int)$_ENV["RATE_LIMIT_PER_MINUTE"] : 3;
+        $rlDay = isset($_ENV["RATE_LIMIT_PER_DAY"]) ? (int)$_ENV["RATE_LIMIT_PER_DAY"] : 50;
+
         if ($baseUrl === "" || $token === "" || $dbPath === "" || $handle === "") {
             throw new \RuntimeException("Missing required env vars. Check .env");
         }
 
-        return new self($baseUrl, $token, $dbPath, $handle, $tz, $logPath, $logSecret);
+        return new self($baseUrl, $token, $dbPath, $handle, $tz, $logPath, $logSecret, $rlMinute, $rlDay);
     }
 }
