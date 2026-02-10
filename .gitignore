@@ -5,3 +5,4 @@ remindme.code-workspace
 /data/*.sqlite
 /data/*.sqlite-shm
 /data/*.sqlite-wal
+.phpunit.result.cache
