@@ -15,7 +15,7 @@ Last aligned with MVP on 2026-02-08.
 - [x] Send DM notification
 - [x] Commands: help, list, cancel
 - [x] Basic logging (for storing success metrics)
-- [ ] Rate limiting
+ - [x] Rate limiting
 
 ## Phase 2: Quality
 - [ ] Parsing hardening: negative tests, strict validation, clearer error messages
