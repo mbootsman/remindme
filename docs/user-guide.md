@@ -34,6 +34,15 @@ DM:
 
 Tip: use `list` to find the ID.
 
+## Set your timezone
+
+DM:
+
+- `set timezone Europe/Amsterdam`
+- `set timezone America/New_York`
+
+This setting determines how relative times (like "tomorrow" or "at 14:30") are interpreted. Use IANA timezone names (examples: `Europe/Amsterdam`, `America/New_York`, `Asia/Tokyo`).
+
 ## Help
 
 DM:
@@ -49,7 +58,7 @@ DM:
 - `on YYYY-MM-DD`
 - Optional time: `at 14:30` / `at 2pm` / `at 2:30pm`
 
-All times are interpreted in the server's default timezone.
+All times are interpreted in your configured timezone (set via `set timezone`). If no timezone is set, the server's default (Europe/Amsterdam) is used.
 
 ## Notes and limitations
 

@@ -5,11 +5,12 @@ Let Mastodon users create reminders via direct messages or mentions using natura
 
 ## In scope (MVP)
 Input:
-- Direct messages (visibility: direct) for all commands (help, list, cancel) and reminders
+- Direct messages (visibility: direct) for all commands (help, list, cancel, set timezone) and reminders
   - Commands:
     - help
     - list
     - cancel <id>
+    - set timezone <timezone>
 - Mentions: only setting a reminder is supported; all other functions must be executed by DM
   
 Parsing:
@@ -34,7 +35,6 @@ Operations:
 ## Out of scope (MVP)
 - Recurring reminders
 - Edits ("change reminder time/text")
-- Per-user timezone configuration (single default timezone only)
 - Multi-language parsing (Dutch later)
 - Web UI/dashboard
 - Streaming API (polling only)

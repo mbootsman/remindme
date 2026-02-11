@@ -30,7 +30,12 @@ final class RemindMeService {
             return $this->cancel((int)$m[2], $userId, $userAcct);
         }
 
-        [$dueUtc, $task] = $this->parseDueAndTask($t);
+        if (preg_match("/^set\\s+timezone\\s+(.+)$/i", $t, $m)) {
+            $this->logger->logCommand("set_timezone");
+            return $this->setTimezone($userId, $userAcct, trim($m[1]));
+        }
+
+        [$dueUtc, $task] = $this->parseDueAndTask($t, $userId);
 
         if (!$dueUtc || $task === "") {
             // Only show help text if the user seems to be trying to set a reminder, otherwise ignore. 
@@ -55,15 +60,17 @@ final class RemindMeService {
         $nowUtc = CarbonImmutable::now("UTC");
         $this->logger->logReminderCreated($userId, $dueUtc, $nowUtc);
 
-        $dueLocal = $dueUtc->setTimezone(new DateTimeZone($this->cfg->timezone));
-        return "@{$userAcct} Ok! I will remind you on {$dueLocal->format('Y-m-d H:i')} (timezone: {$this->cfg->timezone}). ID: {$id}";
+        $userTz = $this->getUserTimezone($userId);
+        $dueLocal = $dueUtc->setTimezone(new DateTimeZone($userTz));
+        return "@{$userAcct} Ok! I will remind you on {$dueLocal->format('Y-m-d H:i')} (timezone: {$userTz}). ID: {$id}";
     }
 
     /**
      * Returns [dueUtc, task]. dueUtc can be null if parsing fails.
      */
-    private function parseDueAndTask(string $input): array {
-        $tz = new DateTimeZone($this->cfg->timezone);
+    private function parseDueAndTask(string $input, string $userId): array {
+        $userTz = $this->getUserTimezone($userId);
+        $tz = new DateTimeZone($userTz);
         $nowLocal = CarbonImmutable::now($tz);
 
         $text = trim($input);
@@ -265,6 +272,7 @@ final class RemindMeService {
         $lines[] = "- remind me on 2026-01-03 at 14:30 about pay invoice";
         $lines[] = "- list";
         $lines[] = "- cancel 12";
+        $lines[] = "- set timezone Europe/Amsterdam";
         return implode("\n", $lines);
     }
 
@@ -284,7 +292,8 @@ final class RemindMeService {
             return "@{$userAcct} No upcoming reminders.";
         }
 
-        $tz = new DateTimeZone($this->cfg->timezone);
+        $userTz = $this->getUserTimezone($userId);
+        $tz = new DateTimeZone($userTz);
 
         $out = ["@{$userAcct} Upcoming reminders:"];
         foreach ($rows as $r) {
@@ -373,5 +382,56 @@ final class RemindMeService {
             return false;
         }
         return (bool)preg_match("/\\bat\\b/i", $tail);
+    }
+
+    /**
+     * Retrieve the user's configured timezone, or fall back to the server default.
+     */
+    private function getUserTimezone(string $userId): string {
+        $pdo = $this->db->pdo();
+        $stmt = $pdo->prepare("SELECT timezone FROM user_settings WHERE user_id = :uid");
+        $stmt->execute([":uid" => $userId]);
+        $tz = $stmt->fetchColumn();
+        return $tz !== false ? (string)$tz : $this->cfg->timezone;
+    }
+
+    /**
+     * Set the user's timezone. Returns a confirmation or error message.
+     */
+    private function setTimezone(string $userId, string $userAcct, string $timezone): string {
+        // Validate timezone
+        if (!$this->isValidTimezone($timezone)) {
+            return "@{$userAcct} Invalid timezone: '{$timezone}'. Please use an IANA timezone name (e.g., Europe/Amsterdam, America/New_York).";
+        }
+
+        $pdo = $this->db->pdo();
+        $nowUtc = CarbonImmutable::now("UTC")->format(DATE_ATOM);
+
+        $stmt = $pdo->prepare("
+            INSERT INTO user_settings(user_id, user_acct, timezone, updated_at_utc)
+            VALUES(:uid, :acct, :tz, :now)
+            ON CONFLICT(user_id) DO UPDATE SET timezone = excluded.timezone, updated_at_utc = excluded.updated_at_utc
+        ");
+
+        $stmt->execute([
+            ":uid" => $userId,
+            ":acct" => $userAcct,
+            ":tz" => $timezone,
+            ":now" => $nowUtc
+        ]);
+
+        return "@{$userAcct} Timezone set to {$timezone}. All reminders will use this timezone.";
+    }
+
+    /**
+     * Check if a timezone string is a valid IANA timezone.
+     */
+    private function isValidTimezone(string $tz): bool {
+        try {
+            new DateTimeZone($tz);
+            return true;
+        } catch (\Exception) {
+            return false;
+        }
     }
 }

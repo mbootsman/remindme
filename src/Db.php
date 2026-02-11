@@ -77,6 +77,16 @@ final class Db {
             ON reminders(due_at_utc)
             WHERE sent_at_utc IS NULL AND canceled_at_utc IS NULL;
         ");
+
+        // "user_settings" stores per-user configuration like timezone.
+        $this->pdo->exec("
+            CREATE TABLE IF NOT EXISTS user_settings (
+                user_id TEXT PRIMARY KEY,
+                user_acct TEXT NOT NULL,
+                timezone TEXT NOT NULL,
+                updated_at_utc TEXT NOT NULL
+            );
+        ");
     }
 
     /**

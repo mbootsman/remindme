@@ -10,9 +10,9 @@ Early stage. Starting with a public project brief and roadmap, then (re)building
 ## What it does (planned MVP)
 - Create reminders via DM
 - Parse relative time ("in 2 hours", "in 3 days")
-- Commands: "help", "list", "cancel"
+- Commands: "help", "list", "cancel", "set timezone"
 - Send reminder notifications via DM
-- Uses server-configured timezone for all users (per-user timezone settings are future work)
+- Per-user timezone configuration
 
 ## Docs
 - Project brief: [docs/project-brief.md](docs/project-brief.md)
