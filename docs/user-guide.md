@@ -49,6 +49,8 @@ DM:
 - `on YYYY-MM-DD`
 - Optional time: `at 14:30` / `at 2pm` / `at 2:30pm`
 
+All times are interpreted in the server's default timezone.
+
 ## Notes and limitations
 
 - Reminder IDs are shared across all users of the bot, but you can only cancel reminders that belong to your account.
