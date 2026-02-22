@@ -266,10 +266,10 @@ final class RemindMeService {
         $lines = [];
         if ($prefix) $lines[] = "@{$userAcct} {$prefix}";
         $lines[] = "@{$userAcct} Here are some instructions on how to use me. Try:";
-        $lines[] = "- remind me in 2 days about renew domain";
-        $lines[] = "- remind me tomorrow at 09:00 about call the dentist";
-        $lines[] = "- remind me next monday at 10:00 about invoicing";
-        $lines[] = "- remind me on 2026-01-03 at 14:30 about pay invoice";
+        $lines[] = "- @remindme in 2 days about renew domain";
+        $lines[] = "- @remindme tomorrow at 09:00 about call the dentist";
+        $lines[] = "- @remindme next monday at 10:00 about invoicing";
+        $lines[] = "- @remindme on 2026-01-03 at 14:30 about pay invoice";
         $lines[] = "- list";
         $lines[] = "- cancel 12";
         $lines[] = "- set timezone Europe/Amsterdam";

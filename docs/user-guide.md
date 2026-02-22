@@ -8,13 +8,15 @@ RemindMe is a Mastodon bot that can send you reminders.
 
 ## Create a reminder
 
-Send the bot a DM:
+Send the bot a DM that mentions it:
 
-- `remind me in 2 days about renew domain`
-- `remind me in 30 minutes about take a break`
-- `remind me tomorrow at 09:00 about call the dentist`
-- `remind me next monday at 10:00 about invoicing`
-- `remind me on 2026-01-03 at 14:30 about pay invoice`
+- `@remindme in 2 days about renew domain`
+- `@remindme in 30 minutes about take a break`
+- `@remindme tomorrow at 09:00 about call the dentist`
+- `@remindme next monday at 10:00 about invoicing`
+- `@remindme on 2026-01-03 at 14:30 about pay invoice`
+
+Most Mastodon clients will add `@remindme` for you when you start a DM thread with the bot, so both `@remindme in 2 days…` and `remind me in 2 days…` work.
 
 If it worked, you will get a confirmation message that includes a reminder **ID**.
 

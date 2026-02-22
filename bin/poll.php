@@ -63,15 +63,25 @@ foreach ($notifications as $n) {
 
     // Only respond if the user is actually trying to use the bot.
     $looksLikeCommand = Text::looksLikeCommand($trimmed);
-
+    $isHelpCommand = (bool)preg_match("/^(help|\\?)$/i", $trimmed);
 
     if ($visibility !== "direct") {
         if ($looksLikeCommand) {
+            // Public/unlisted mentions get a privacy reminder with a short
+            // usage hint, and for "help" we also send a DM with full
+            // instructions.
             $api->postStatus(
-                "@{$acct} Please send me a direct message so I can store reminders privately. Type: help",
+                "@{$acct} For privacy, please send me a direct message. Example: '@remindme in 2 days about renew domain'. Type 'help' in a DM for full instructions.",
                 "public",
                 $statusId
             );
+
+            if ($isHelpCommand) {
+                $reply = $svc->handleCommand((string)$uid, (string)$acct, $statusId, $trimmed);
+                if ($reply !== null) {
+                    $api->postStatus($reply, "direct", null);
+                }
+            }
         }
         continue;
     }
