@@ -17,6 +17,7 @@ Responsibilities:
   - help
   - list
   - cancel <id>
+  - set timezone <timezone>
   - otherwise: create reminder
 - Reply to the user via a direct message (in reply to the original status)
 
@@ -53,9 +54,15 @@ Used for:
 - sent_at_utc (nullable ISO8601 string)
 - canceled_at_utc (nullable ISO8601 string)
 
+### Table: user_settings
+- user_id (primary key, Mastodon account id)
+- user_acct (acct string)
+- timezone (IANA timezone string, e.g. "Europe/Amsterdam")
+- updated_at_utc (ISO8601 string)
+
 ## Time handling
 - All stored times are UTC (due_at_utc, created_at_utc, sent_at_utc, canceled_at_utc)
-- Parsing and display use DEFAULT_TIMEZONE (config)
+- Parsing and display use the user's configured timezone (from user_settings), falling back to DEFAULT_TIMEZONE if not set
 - For relative date-based phrases like "in 2 days", the default time-of-day is the time the reminder was created unless "at ..." is supplied.
 
 ## Parsing (MVP)
