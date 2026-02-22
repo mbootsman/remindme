@@ -5,9 +5,9 @@ A Mastodon reminder service that lets you create reminders using natural languag
 Example: "remind me in 2 days about paying the invoice"
 
 ## Status
-Early stage. Starting with a public project brief and roadmap, then (re)building an MVP.
+MVP v0.1.0 is live. Expect rough edges and fast iteration.
 
-## What it does (planned MVP)
+## What it does
 - Create reminders via DM
 - Parse relative time ("in 2 hours", "in 3 days")
 - Commands: "help", "list", "cancel", "set timezone"
@@ -21,9 +21,10 @@ Early stage. Starting with a public project brief and roadmap, then (re)building
 - Architecture: [docs/architecture.md](docs/architecture.md)
 - Decisions (ADRs): [docs/decisions/](docs/decisions/)
 - Operations: [docs/ops.md](docs/ops.md)
+ - Changelog: [CHANGELOG.md](CHANGELOG.md)
 
 ## Contributing
-See [CONTRIBUTING.md](CONTRIBUTING.MD).
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 See [LICENSE](LICENSE).
