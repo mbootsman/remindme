@@ -1,3 +1,24 @@
+<?php
+require_once __DIR__ . '/vendor/autoload.php';
+if (file_exists(__DIR__ . '/.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+    $dotenv->load();
+}
+if (empty($_ENV['DASHBOARD_USER']) || empty($_ENV['DASHBOARD_PASS'])) {
+    header('HTTP/1.0 500 Internal Server Error');
+    echo 'Dashboard credentials not set. Please configure DASHBOARD_USER and DASHBOARD_PASS in your .env file.';
+    exit;
+}
+$user = $_ENV['DASHBOARD_USER'];
+$pass = $_ENV['DASHBOARD_PASS'];
+if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
+    $_SERVER['PHP_AUTH_USER'] !== $user || $_SERVER['PHP_AUTH_PW'] !== $pass) {
+    header('WWW-Authenticate: Basic realm="RemindMe Dashboard"');
+    header('HTTP/1.0 401 Unauthorized');
+    echo 'Authentication required.';
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
