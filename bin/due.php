@@ -47,6 +47,7 @@ $stmt = $pdo->prepare("
 $stmt->execute([":now" => $nowUtc]);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+
 foreach ($rows as $r) {
     $id = (int)$r["id"];
     $acct = (string)$r["user_acct"];
@@ -58,4 +59,18 @@ foreach ($rows as $r) {
     $upd->execute([":now" => $nowUtc, ":id" => $id]);
 
     $logger->logReminderSent();
+}
+
+// Cleanup: Mark missed reminders as sent
+$cleanup = $pdo->prepare("
+    UPDATE reminders
+    SET sent_at_utc = :now
+    WHERE due_at_utc < :now
+      AND sent_at_utc IS NULL
+      AND canceled_at_utc IS NULL
+");
+$cleanup->execute([":now" => $nowUtc]);
+$missed = $cleanup->rowCount();
+if ($missed > 0) {
+    $logger->log(["event" => "missed_reminders_cleaned", "count" => $missed, "timestamp" => $nowUtc]);
 }
