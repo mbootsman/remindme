@@ -66,16 +66,19 @@ foreach ($notifications as $n) {
     $isHelpCommand = (bool)preg_match("/^(help|\\?)$/i", $trimmed);
 
     if ($visibility !== "direct") {
+        // Always send a private DM with instructions for any non-DM mention.
+        $api->postStatus(
+            "Hi @{$acct}, for privacy, please send me a direct message with your reminder command. Example: '@remindme in 2 days about renew domain'. Type 'help' in a DM for full instructions.",
+            "direct",
+            null
+        );
+        // Optionally, still post a public privacy reminder if it looks like a command.
         if ($looksLikeCommand) {
-            // Public/unlisted mentions get a privacy reminder with a short
-            // usage hint, and for "help" we also send a DM with full
-            // instructions.
             $api->postStatus(
                 "@{$acct} For privacy, please send me a direct message. Example: '@remindme in 2 days about renew domain'. Type 'help' in a DM for full instructions.",
                 "public",
                 $statusId
             );
-
             if ($isHelpCommand) {
                 $reply = $svc->handleCommand((string)$uid, (string)$acct, $statusId, $trimmed);
                 if ($reply !== null) {

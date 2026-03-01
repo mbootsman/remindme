@@ -29,8 +29,17 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
         body { font-family: Arial, sans-serif; margin: 2em; background: #f9f9f9; }
         h1 { color: #333; }
         .section { margin-bottom: 2em; }
-        #logsChart { width: 100%; max-width: 600px; height: 300px; }
-        table { border-collapse: collapse; width: 100%; background: #fff; }
+        #logsChart { 
+            width: 100%; 
+            max-width: 320px; 
+            max-height: 200px;
+            display: block; 
+            margin-left: 0;
+            border-radius: 8px; 
+            background: #fff; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04); 
+        }
+        table { border-collapse: collapse; table-layout: auto; background: #fff; }
         th, td { border: 1px solid #ddd; padding: 8px; }
         th { background: #eee; }
     </style>
@@ -64,13 +73,17 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
         const logs = await fetchLogs();
         const ctx = document.getElementById('logsChart').getContext('2d');
         new Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: logs.labels,
                 datasets: [{
                     label: 'Reminders Created',
                     data: logs.counts,
-                    backgroundColor: '#4e79a7'
+                    borderColor: '#4e79a7',
+                    backgroundColor: 'rgba(78,121,167,0.1)',
+                    fill: false,
+                    tension: 0.7,
+                    pointRadius: 2
                 }]
             },
             options: {
@@ -81,6 +94,11 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
                             precision: 0,
                             stepSize: 1
                         }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
                     }
                 }
             }

@@ -2,9 +2,11 @@
 
 RemindMe is a Mastodon bot that can send you reminders.
 
+
 ## Privacy rules
-- RemindMe only processes messages with visibility **direct** (private/direct posts).
-- If you mention the bot publicly, it will not respond unless you are clearly trying to use a command (list, cancel, help, remind me).
+- RemindMe only processes commands sent via **direct messages** (private/direct posts).
+- If you mention the bot publicly or in a reply, the bot will now send you a private DM with instructions on how to use it, to protect your privacy and help you get started.
+
 
 ## Create a reminder
 

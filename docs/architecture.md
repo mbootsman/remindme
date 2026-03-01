@@ -76,6 +76,7 @@ Supported time phrases:
 More info in [MVP Scope](/docs/mvp.md)
 
 ## Security and privacy (MVP)
-- Accept direct messages and mentions
+- Accept direct messages for all commands and reminders
+- If a user mentions the bot publicly or in a reply, the bot sends a private DM with instructions to guide them to use DMs for privacy
 - Store the minimum required data in SQLite
 - Access token stays in .env (never committed)

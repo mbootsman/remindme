@@ -5,13 +5,13 @@ Let Mastodon users create reminders via direct messages or mentions using natura
 
 ## In scope (MVP)
 Input:
-- Direct messages (visibility: direct) for all commands (help, list, cancel, set timezone) and reminders
+- Direct messages (visibility: direct) are required for all commands (help, list, cancel, set timezone) and reminders.
   - Commands:
     - help
     - list
     - cancel <id>
     - set timezone <timezone>
-- Mentions: only setting a reminder is supported; all other functions must be executed by DM
+- If you mention the bot publicly or in a reply, you will receive a private DM with instructions on how to use the bot. Only DMs are processed for commands and reminders.
   
 Parsing:
 - English (first)
