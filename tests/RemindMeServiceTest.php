@@ -66,7 +66,7 @@ final class RemindMeServiceTest extends TestCase {
         $reply = $svc->handleCommand("u1", "marcel", "s1", "in 2 days", $postUrl);
 
         $this->assertNotNull($reply);
-        $this->assertStringContainsString("I will remind of this post on", $reply);
+        $this->assertStringContainsString("I will remind you of this post on", $reply);
 
         $row = $db->pdo()->query("SELECT task, reply_to_post_url FROM reminders")->fetch(PDO::FETCH_ASSOC);
         $this->assertSame("", $row["task"]);
