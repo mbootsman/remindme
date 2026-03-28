@@ -54,8 +54,15 @@ foreach ($rows as $r) {
     $task = (string)$r["task"];
     $postUrl = isset($r["reply_to_post_url"]) ? (string)$r["reply_to_post_url"] : "";
 
-    $content = $postUrl !== "" ? $postUrl : $task;
-    $api->postStatus("@{$acct} Reminder (ID: {$id}): {$content}", "direct", null);
+    if ($postUrl !== "") {
+        $body = "You wanted to be reminded of this post: {$postUrl}";
+        if ($task !== "") {
+            $body .= "\n{$task}";
+        }
+    } else {
+        $body = $task;
+    }
+    $api->postStatus("@{$acct} Reminder (ID: {$id}): {$body}", "direct", null);
 
     $upd = $pdo->prepare("UPDATE reminders SET sent_at_utc = :now WHERE id = :id");
     $upd->execute([":now" => $nowUtc, ":id" => $id]);

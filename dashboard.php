@@ -54,7 +54,7 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
         <h2>Scheduled Reminders</h2>
         <table id="remindersTable">
             <thead>
-                <tr><th>ID</th><th>User</th><th>Task</th><th>Due (UTC)</th></tr>
+                <tr><th>ID</th><th>User</th><th>Task</th><th>Post</th><th>Due (UTC)</th></tr>
             </thead>
             <tbody></tbody>
         </table>
@@ -108,7 +108,7 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
         const reminders = await fetchReminders();
         const tbody = document.querySelector('#remindersTable tbody');
         tbody.innerHTML = reminders.map(r =>
-            `<tr><td>${r.id}</td><td>${r.user_acct}</td><td>${r.task}</td><td>${r.due_at_utc}</td></tr>`
+            `<tr><td>${r.id}</td><td>${r.user_acct}</td><td>${r.task}</td><td>${r.reply_to_post_url ? `<a href="${r.reply_to_post_url}" target="_blank">link</a>` : ''}</td><td>${r.due_at_utc}</td></tr>`
         ).join('');
     }
     renderLogsChart();

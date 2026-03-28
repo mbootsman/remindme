@@ -29,4 +29,15 @@ final class Text {
     public static function looksLikeCommand(string $text): bool {
         return (bool)preg_match('/\b(remind\s+me|help|\?|list|cancel|delete)\b/i', $text);
     }
+
+    /**
+     * Returns true if the text contains a time expression that the parser can handle.
+     * Used to detect public replies like "@remindme in 2 days" on a post.
+     */
+    public static function looksLikeTimeExpression(string $text): bool {
+        return (bool)preg_match(
+            '/\b(in\s+\d+\s+(minutes?|hours?|days?|weeks?|months?)|tomorrow|next\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)|on\s+\d{4}-\d{2}-\d{2})\b/i',
+            $text
+        );
+    }
 }

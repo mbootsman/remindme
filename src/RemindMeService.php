@@ -64,8 +64,10 @@ final class RemindMeService {
 
         $userTz = $this->getUserTimezone($userId);
         $dueLocal = $dueUtc->setTimezone(new DateTimeZone($userTz));
-        $what = $replyToPostUrl !== null ? "of this post" : "you";
-        return "@{$userAcct} Ok! I will remind {$what} on {$dueLocal->format('Y-m-d H:i')} (timezone: {$userTz}). ID: {$id}";
+        if ($replyToPostUrl !== null) {
+            return "@{$userAcct} Ok! I will remind you of this post on {$dueLocal->format('Y-m-d H:i')} (timezone: {$userTz}). ID: {$id}\n{$replyToPostUrl}";
+        }
+        return "@{$userAcct} Ok! I will remind you on {$dueLocal->format('Y-m-d H:i')} (timezone: {$userTz}). ID: {$id}";
     }
 
     /**

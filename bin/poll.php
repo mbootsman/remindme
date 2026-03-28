@@ -70,7 +70,7 @@ foreach ($notifications as $n) {
 
         // If this is a reply to another post and contains a time expression,
         // treat it as a "remind me of this post" request.
-        if ($inReplyToId !== "" && $looksLikeCommand && !$isHelpCommand) {
+        if ($inReplyToId !== "" && ($looksLikeCommand || Text::looksLikeTimeExpression($trimmed)) && !$isHelpCommand) {
             $originalPost = $api->getStatus($inReplyToId);
             $postUrl = ($originalPost !== null) ? (string)($originalPost["url"] ?? "") : "";
 

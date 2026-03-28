@@ -21,7 +21,7 @@ if (!str_starts_with($dbPath, '/')) {
     $dbPath = __DIR__ . '/' . $dbPath;
 }
 $pdo = new PDO('sqlite:' . $dbPath, null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-$sql = 'SELECT id, user_acct, task, due_at_utc FROM reminders WHERE sent_at_utc IS NULL AND canceled_at_utc IS NULL ORDER BY due_at_utc ASC';
+$sql = 'SELECT id, user_acct, task, reply_to_post_url, due_at_utc FROM reminders WHERE sent_at_utc IS NULL AND canceled_at_utc IS NULL ORDER BY due_at_utc ASC';
 $stmt = $pdo->query($sql);
 $reminders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
