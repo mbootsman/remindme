@@ -9,17 +9,13 @@ The MVP uses polling, a SQLite database, and two cron-run workers.
 
 ### 1) Polling worker (bin/poll.php)
 Responsibilities:
-- Fetch new direct message/mention notifications from Mastodon using since_id paging
-- Accept all visibility messages (details [here](https://docs.joinmastodon.org/entities/Status/#visibility))
-- Only accept messages with visibility "direct" for other commands
+- Fetch new mention notifications from Mastodon using since_id paging
 - Convert status HTML to plain text
-- Route commands:
-  - help
-  - list
-  - cancel <id>
-  - set timezone <timezone>
-  - otherwise: create reminder
-- Reply to the user via a direct message (in reply to the original status)
+- Route by visibility:
+  - **direct**: accept all commands (help, list, cancel, set timezone, create reminder)
+  - **public reply to a post**: if the mention contains a time expression, create a reminder for the original post and confirm via DM; otherwise redirect to DM with instructions
+  - **other public mentions**: redirect to DM with instructions
+- Reply to the user via a direct message
 
 State:
 - Reads and updates `state.last_notification_id` in SQLite
@@ -53,6 +49,7 @@ Used for:
 - created_at_utc (ISO8601 string)
 - sent_at_utc (nullable ISO8601 string)
 - canceled_at_utc (nullable ISO8601 string)
+- reply_to_post_url (nullable URL string — set when reminder was created from a public reply to a post)
 
 ### Table: user_settings
 - user_id (primary key, Mastodon account id)
@@ -75,8 +72,9 @@ Supported time phrases:
 
 More info in [MVP Scope](/docs/mvp.md)
 
-## Security and privacy (MVP)
-- Accept direct messages for all commands and reminders
-- If a user mentions the bot publicly or in a reply, the bot sends a private DM with instructions to guide them to use DMs for privacy
+## Security and privacy
+- All commands and reminders are accepted via direct message
+- Public replies to posts containing a time expression are accepted and processed; confirmation and reminder are always sent as DMs
+- Other public mentions redirect the user to DM with instructions
 - Store the minimum required data in SQLite
 - Access token stays in .env (never committed)
