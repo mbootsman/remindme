@@ -62,11 +62,11 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
     async function fetchLogs() {
-        const res = await fetch('dashboard_logs.php');
+        const res = await fetch('dashboard_logs.php', { credentials: 'same-origin' });
         return res.json();
     }
     async function fetchReminders() {
-        const res = await fetch('dashboard_reminders.php');
+        const res = await fetch('dashboard_reminders.php', { credentials: 'same-origin' });
         return res.json();
     }
     async function renderLogsChart() {

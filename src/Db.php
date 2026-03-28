@@ -35,8 +35,6 @@ final class Db {
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ]);
 
-        // WAL improves concurrency and durability for "cron every minute" style workloads.
-        $this->pdo->exec("PRAGMA journal_mode=WAL;");
         $this->migrate();
     }
 

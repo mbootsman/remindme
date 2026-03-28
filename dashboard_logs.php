@@ -2,6 +2,19 @@
 // Suppress PHP errors/warnings for clean JSON output
 ini_set('display_errors', 0);
 error_reporting(0);
+require_once __DIR__ . '/vendor/autoload.php';
+if (file_exists(__DIR__ . '/.env')) {
+    Dotenv\Dotenv::createImmutable(__DIR__)->load();
+}
+$user = $_ENV['DASHBOARD_USER'] ?? '';
+$pass = $_ENV['DASHBOARD_PASS'] ?? '';
+if (!$user || !$pass ||
+    ($_SERVER['PHP_AUTH_USER'] ?? '') !== $user ||
+    ($_SERVER['PHP_AUTH_PW'] ?? '') !== $pass) {
+    header('WWW-Authenticate: Basic realm="RemindMe Dashboard"');
+    http_response_code(401);
+    exit;
+}
 // Returns log metrics for dashboard as JSON
 $logPath = __DIR__ . '/logs/remindme.log';
 $counts = [];
