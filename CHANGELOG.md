@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2026-03-28
+
+- Include original post URL in both the confirmation DM and the reminder DM for post reminders.
+- Fix dashboard reminders table to show post URL as a clickable link.
+- Update architecture docs to reflect public reply flow and `reply_to_post_url` column.
+
 ## [0.2.0] - 2026-03-28
 
 - Reply to any public post with `@remindme in 2 days` (or any supported time expression) to get reminded of that post. The bot will send the reminder as a DM with a link back to the original post.
