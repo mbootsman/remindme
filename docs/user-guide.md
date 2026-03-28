@@ -4,9 +4,22 @@ RemindMe is a Mastodon bot that can send you reminders.
 
 
 ## Privacy rules
-- RemindMe only processes commands sent via **direct messages** (private/direct posts).
-- If you mention the bot publicly or in a reply, the bot will now send you a private DM with instructions on how to use it, to protect your privacy and help you get started.
+- RemindMe processes commands sent via **direct messages** (private/direct posts).
+- You can also reply to any public post with a time expression to be reminded of that post (see below).
+- If you mention the bot publicly without a time expression, the bot will send you a private DM with instructions.
 
+
+## Get reminded of a post
+
+Reply to any public post mentioning the bot with a time expression:
+
+- `@remindme in 2 days`
+- `@remindme tomorrow at 09:00`
+- `@remindme next monday`
+
+The bot will confirm via DM. When the reminder is due, you will receive a DM with a link back to the original post.
+
+No task description needed — the post itself is what you will be reminded of.
 
 ## Create a reminder
 

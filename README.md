@@ -9,6 +9,7 @@ MVP v0.1.0 is live. Expect rough edges and fast iteration.
 
 ## What it does
 - Create reminders via DM
+- Reply to any public post with a time expression to be reminded of that post
 - Parse relative time ("in 2 hours", "in 3 days")
 - Commands: "help", "list", "cancel", "set timezone"
 - Send reminder notifications via DM

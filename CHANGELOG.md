@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2026-03-28
+
+- Reply to any public post with `@remindme in 2 days` (or any supported time expression) to get reminded of that post. The bot will send the reminder as a DM with a link back to the original post.
+
 ## [0.1.1] - 2026-02-22
 
 Small UX and documentation improvements.
