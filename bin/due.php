@@ -36,7 +36,7 @@ $pdo = $db->pdo();
 $nowUtc = CarbonImmutable::now("UTC")->format(DATE_ATOM);
 
 $stmt = $pdo->prepare("
-    SELECT id, user_acct, task
+    SELECT id, user_acct, task, reply_to_post_url
     FROM reminders
     WHERE due_at_utc <= :now
       AND sent_at_utc IS NULL
@@ -52,8 +52,10 @@ foreach ($rows as $r) {
     $id = (int)$r["id"];
     $acct = (string)$r["user_acct"];
     $task = (string)$r["task"];
+    $postUrl = isset($r["reply_to_post_url"]) ? (string)$r["reply_to_post_url"] : "";
 
-    $api->postStatus("@{$acct} Reminder (ID: {$id}): {$task}", "direct", null);
+    $content = $postUrl !== "" ? $postUrl : $task;
+    $api->postStatus("@{$acct} Reminder (ID: {$id}): {$content}", "direct", null);
 
     $upd = $pdo->prepare("UPDATE reminders SET sent_at_utc = :now WHERE id = :id");
     $upd->execute([":now" => $nowUtc, ":id" => $id]);

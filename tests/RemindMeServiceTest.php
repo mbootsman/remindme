@@ -55,4 +55,64 @@ final class RemindMeServiceTest extends TestCase {
 
         $this->assertStringContainsString("Try:", $reply);
     }
+
+    public function testPostReplyReminderStoresUrl(): void {
+        $cfg = new Config("https://example.invalid", "x", ":memory:", "@remindme", "Europe/Amsterdam", sys_get_temp_dir() . "/test.log", "test-secret", 1000, 10000);
+        $db = new Db(":memory:");
+        $logger = new Logger(sys_get_temp_dir() . "/test.log", "test-secret");
+        $svc = new RemindMeService($db, $cfg, $logger);
+
+        $postUrl = "https://toot.re/@someone/123456789";
+        $reply = $svc->handleCommand("u1", "marcel", "s1", "in 2 days", $postUrl);
+
+        $this->assertNotNull($reply);
+        $this->assertStringContainsString("I will remind of this post on", $reply);
+
+        $row = $db->pdo()->query("SELECT task, reply_to_post_url FROM reminders")->fetch(PDO::FETCH_ASSOC);
+        $this->assertSame("", $row["task"]);
+        $this->assertSame($postUrl, $row["reply_to_post_url"]);
+    }
+
+    public function testPostReplyReminderWithTaskStoresBoth(): void {
+        $cfg = new Config("https://example.invalid", "x", ":memory:", "@remindme", "Europe/Amsterdam", sys_get_temp_dir() . "/test.log", "test-secret", 1000, 10000);
+        $db = new Db(":memory:");
+        $logger = new Logger(sys_get_temp_dir() . "/test.log", "test-secret");
+        $svc = new RemindMeService($db, $cfg, $logger);
+
+        $postUrl = "https://toot.re/@someone/123456789";
+        $reply = $svc->handleCommand("u1", "marcel", "s1", "in 2 days about follow up", $postUrl);
+
+        $this->assertNotNull($reply);
+
+        $row = $db->pdo()->query("SELECT task, reply_to_post_url FROM reminders")->fetch(PDO::FETCH_ASSOC);
+        $this->assertSame("follow up", $row["task"]);
+        $this->assertSame($postUrl, $row["reply_to_post_url"]);
+    }
+
+    public function testPostReplyWithoutTimeExpressionReturnsNull(): void {
+        $cfg = new Config("https://example.invalid", "x", ":memory:", "@remindme", "Europe/Amsterdam", sys_get_temp_dir() . "/test.log", "test-secret", 1000, 10000);
+        $db = new Db(":memory:");
+        $logger = new Logger(sys_get_temp_dir() . "/test.log", "test-secret");
+        $svc = new RemindMeService($db, $cfg, $logger);
+
+        $reply = $svc->handleCommand("u1", "marcel", "s1", "great post", "https://toot.re/@someone/123456789");
+
+        $this->assertNull($reply);
+        $count = $db->pdo()->query("SELECT COUNT(*) FROM reminders")->fetchColumn();
+        $this->assertSame(0, (int)$count);
+    }
+
+    public function testRegularReminderWithoutTaskStillFails(): void {
+        $cfg = new Config("https://example.invalid", "x", ":memory:", "@remindme", "Europe/Amsterdam", sys_get_temp_dir() . "/test.log", "test-secret", 1000, 10000);
+        $db = new Db(":memory:");
+        $logger = new Logger(sys_get_temp_dir() . "/test.log", "test-secret");
+        $svc = new RemindMeService($db, $cfg, $logger);
+
+        // "remind me in 2 days" with no task and no post URL should return help text
+        $reply = $svc->handleCommand("u1", "marcel", "s1", "remind me in 2 days");
+
+        $this->assertStringContainsString("I could not understand", $reply);
+        $count = $db->pdo()->query("SELECT COUNT(*) FROM reminders")->fetchColumn();
+        $this->assertSame(0, (int)$count);
+    }
 }

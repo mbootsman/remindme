@@ -71,6 +71,13 @@ final class Db {
             );
         ");
 
+        // Add reply_to_post_url column if it does not exist yet (idempotent).
+        try {
+            $this->pdo->exec("ALTER TABLE reminders ADD COLUMN reply_to_post_url TEXT NULL");
+        } catch (\PDOException) {
+            // Column already exists — ignore.
+        }
+
         // Index to speed up the due-reminder query.
         $this->pdo->exec("
             CREATE INDEX IF NOT EXISTS idx_due

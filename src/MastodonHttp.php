@@ -36,6 +36,22 @@ final class MastodonHttp {
         return json_decode((string)$res->getBody(), true, 512, JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * Fetch a single status by ID. Returns null if the status cannot be retrieved.
+     *
+     * @return array<string,mixed>|null
+     */
+    public function getStatus(string $id): ?array {
+        try {
+            $res = $this->http->get("/api/v1/statuses/{$id}", [
+                "headers" => ["Authorization" => "Bearer " . $this->cfg->accessToken]
+            ]);
+            return json_decode((string)$res->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
     public function postStatus(string $status, string $visibility = "direct", ?string $inReplyToId = null): void {
         $form = [
             "status" => $status,

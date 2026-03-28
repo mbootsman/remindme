@@ -12,7 +12,7 @@ final class RemindMeService {
     }
 
     /// Handles an incoming command and returns a reply text.
-    public function handleCommand(string $userId, string $userAcct, string $sourceStatusId, string $plainText): ?string {
+    public function handleCommand(string $userId, string $userAcct, string $sourceStatusId, string $plainText, ?string $replyToPostUrl = null): ?string {
         $t = trim($plainText);
 
         if (preg_match("/^(help|\\?)$/i", $t)) {
@@ -37,8 +37,10 @@ final class RemindMeService {
 
         [$dueUtc, $task] = $this->parseDueAndTask($t, $userId);
 
-        if (!$dueUtc || $task === "") {
-            // Only show help text if the user seems to be trying to set a reminder, otherwise ignore. 
+        // For post reminders (replyToPostUrl set), an empty task is fine — the post URL is the reminder content.
+        // For regular reminders, both a due time and a task are required.
+        if (!$dueUtc || ($task === "" && $replyToPostUrl === null)) {
+            // Only show help text if the user seems to be trying to set a reminder, otherwise ignore.
             // Case insensitive match to be more user-friendly.
             if (Text::looksLikeCommand($t)) {
                 $this->logger->logParsingError();
@@ -47,7 +49,7 @@ final class RemindMeService {
             return null; // No reply for non "remind me" mentions
         }
 
-        $id = $this->insertReminder($userId, $userAcct, $sourceStatusId, $task, $dueUtc);
+        $id = $this->insertReminder($userId, $userAcct, $sourceStatusId, $task, $dueUtc, $replyToPostUrl);
         
         // Rate limiting: ensure we don't create too many reminders for one user.
         // This check runs after parsing but before acknowledging; if the user is over the limit
@@ -62,7 +64,8 @@ final class RemindMeService {
 
         $userTz = $this->getUserTimezone($userId);
         $dueLocal = $dueUtc->setTimezone(new DateTimeZone($userTz));
-        return "@{$userAcct} Ok! I will remind you on {$dueLocal->format('Y-m-d H:i')} (timezone: {$userTz}). ID: {$id}";
+        $what = $replyToPostUrl !== null ? "of this post" : "you";
+        return "@{$userAcct} Ok! I will remind {$what} on {$dueLocal->format('Y-m-d H:i')} (timezone: {$userTz}). ID: {$id}";
     }
 
     /**
@@ -241,11 +244,11 @@ final class RemindMeService {
         return trim($candidate);
     }
 
-    private function insertReminder(string $userId, string $userAcct, string $sourceStatusId, string $task, CarbonImmutable $dueUtc): int {
+    private function insertReminder(string $userId, string $userAcct, string $sourceStatusId, string $task, CarbonImmutable $dueUtc, ?string $replyToPostUrl = null): int {
         $pdo = $this->db->pdo();
         $stmt = $pdo->prepare("
-            INSERT INTO reminders(user_id, user_acct, source_status_id, task, due_at_utc, created_at_utc)
-            VALUES(:uid, :acct, :sid, :task, :due, :created)
+            INSERT INTO reminders(user_id, user_acct, source_status_id, task, due_at_utc, created_at_utc, reply_to_post_url)
+            VALUES(:uid, :acct, :sid, :task, :due, :created, :post_url)
         ");
 
         $nowUtc = CarbonImmutable::now("UTC")->format(DATE_ATOM);
@@ -256,7 +259,8 @@ final class RemindMeService {
             ":sid" => $sourceStatusId,
             ":task" => $task,
             ":due" => $dueUtc->format(DATE_ATOM),
-            ":created" => $nowUtc
+            ":created" => $nowUtc,
+            ":post_url" => $replyToPostUrl,
         ]);
 
         return (int)$pdo->lastInsertId();
