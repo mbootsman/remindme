@@ -102,6 +102,31 @@ final class RemindMeServiceSyntaxTest extends TestCase
     }
 
     /**
+     * Written-out numbers are normalised before parsing.
+     * "in two days" → "in 2 days", "in five minutes" → "in 5 minutes", etc.
+     */
+    public function testWordNumbersInTimeExpressions(): void
+    {
+        // "in two days" → same as "in 2 days"
+        $this->svc->handleCommand("u1", "marcel", "s1", "remind me in two days about pay invoice");
+        $r = $this->fetchLastReminder();
+        $this->assertSame("pay invoice", $r["task"]);
+        $this->assertSame($this->expectedUtcFromLocal("2026-01-11 12:34:00"), $r["due_at_utc"]);
+
+        // "in five minutes" → same as "in 5 minutes"
+        $this->svc->handleCommand("u1", "marcel", "s1", "in five minutes about stand up");
+        $r = $this->fetchLastReminder();
+        $this->assertSame("stand up", $r["task"]);
+        $this->assertSame($this->expectedUtcFromLocal("2026-01-09 12:39:00"), $r["due_at_utc"]);
+
+        // "in three weeks" → same as "in 3 weeks"
+        $this->svc->handleCommand("u1", "marcel", "s1", "remind me in three weeks about renew domain");
+        $r = $this->fetchLastReminder();
+        $this->assertSame("renew domain", $r["task"]);
+        $this->assertSame($this->expectedUtcFromLocal("2026-01-30 12:34:00"), $r["due_at_utc"]);
+    }
+
+    /**
      * MVP optional: "at 14:30" / "at 2pm" / "at 2:30pm"
      *
      * We test these on a date-based relative phrase (in 2 days),

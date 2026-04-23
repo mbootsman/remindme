@@ -71,9 +71,6 @@ final class RemindMeServiceNegativeParsingTest extends TestCase
             ["remind me in days about pay invoice"],
             ["remind me in hours about pay invoice"],
 
-            // Non-numeric number
-            ["remind me in two days about pay invoice"],
-
             // Missing unit
             ["remind me in 2 about pay invoice"],
 
