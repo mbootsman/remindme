@@ -5,7 +5,7 @@ A Mastodon reminder service that lets you create reminders using natural languag
 Example: "@remindme in 2 days about paying the invoice"
 
 ## Status
-MVP v0.1.0 is live. Expect rough edges and fast iteration.
+v0.3.0 is live. 
 
 ## What it does
 - Create reminders via DM
