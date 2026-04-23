@@ -35,8 +35,9 @@ final class Text {
      * Used to detect public replies like "@remindme in 2 days" on a post.
      */
     public static function looksLikeTimeExpression(string $text): bool {
+        $months = 'january|february|march|april|may|june|july|august|september|october|november|december';
         return (bool)preg_match(
-            '/\b(in\s+\d+\s+(minutes?|hours?|days?|weeks?|months?)|tomorrow|next\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)|on\s+\d{4}-\d{2}-\d{2})\b/i',
+            '/\b(in\s+\d+\s+(minutes?|hours?|days?|weeks?|months?)|tomorrow|next\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)|on\s+\d{4}-\d{2}-\d{2}|on\s+(' . $months . ')\s+\d{1,2})\b/i',
             $text
         );
     }

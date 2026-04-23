@@ -183,6 +183,38 @@ final class RemindMeService {
             return [$dueLocal->utc(), $task];
         }
 
+        // 5) "on June 15" – natural month name, resolves to the next occurrence of that date
+        $monthsPattern = 'january|february|march|april|may|june|july|august|september|october|november|december';
+        if (preg_match("/\\bon\\s+({$monthsPattern})\\s+(\\d{1,2})\\b/i", $text, $m, PREG_OFFSET_CAPTURE)) {
+            $monthName = $m[1][0];
+            $day = (int)$m[2][0];
+            $matchStart = $m[0][1];
+            $matchLen = strlen($m[0][0]);
+
+            $year = (int)$nowLocal->format("Y");
+            $candidate = CarbonImmutable::createFromFormat("Y F j", "{$year} {$monthName} {$day}", $tz);
+
+            // createFromFormat returns false on failure; also check day wasn't normalized (e.g. Feb 30).
+            if (!$candidate || $candidate->format("j") !== (string)$day) {
+                return [null, ""];
+            }
+
+            // If the date already passed today, advance to next year.
+            if ($candidate->startOfDay()->lt($nowLocal->startOfDay())) {
+                $candidate = $candidate->addYear();
+            }
+
+            $dueLocal = $candidate->setTime((int)$nowLocal->format("H"), (int)$nowLocal->format("i"));
+
+            $time = $this->extractTime($text, $matchStart + $matchLen);
+            if ($time) {
+                $dueLocal = $dueLocal->setTime($time["h"], $time["m"]);
+            }
+
+            $task = $this->extractTask($text, $matchStart, $matchLen, $time);
+            return [$dueLocal->utc(), $task];
+        }
+
         return [null, ""];
     }
 

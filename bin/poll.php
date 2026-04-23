@@ -22,7 +22,13 @@ $api = new MastodonHttp($cfg);
 $svc = new RemindMeService($db, $cfg, $logger);
 
 $since = $db->get("last_notification_id");
-$notifications = $api->getMentionNotifications($since, 40);
+
+try {
+    $notifications = $api->getMentionNotifications($since, 40);
+} catch (\Throwable $e) {
+    fwrite(STDERR, "[poll.php] Failed to fetch notifications: " . $e->getMessage() . "\n");
+    exit(1);
+}
 
 // First run bootstrap: store the newest notification id and do not process old items.
 if (!$since) {
@@ -47,81 +53,85 @@ foreach ($notifications as $n) {
 
     if (($n["type"] ?? "") !== "mention") continue;
 
-    $acct = $n["account"]["acct"] ?? null;
-    $uid  = $n["account"]["id"] ?? null;
-    $status = $n["status"] ?? null;
-    if (!$acct || !$uid || !$status) continue;
+    try {
+        $acct = $n["account"]["acct"] ?? null;
+        $uid  = $n["account"]["id"] ?? null;
+        $status = $n["status"] ?? null;
+        if (!$acct || !$uid || !$status) continue;
 
-    $statusId = (string)($status["id"] ?? "");
-    $visibility = (string)($status["visibility"] ?? "");
+        $statusId = (string)($status["id"] ?? "");
+        $visibility = (string)($status["visibility"] ?? "");
 
-    $plain = Text::fromHtml((string)($status["content"] ?? ""));
-    $plain = Text::removeLeadingBotHandle($plain, $cfg->botHandle);
+        $plain = Text::fromHtml((string)($status["content"] ?? ""));
+        $plain = Text::removeLeadingBotHandle($plain, $cfg->botHandle);
 
-    // Privacy rule: only accept direct messages.
-    $trimmed = trim($plain);
+        // Privacy rule: only accept direct messages.
+        $trimmed = trim($plain);
 
-    // Only respond if the user is actually trying to use the bot.
-    $looksLikeCommand = Text::looksLikeCommand($trimmed);
-    $isHelpCommand = (bool)preg_match("/^(help|\\?)$/i", $trimmed);
+        // Only respond if the user is actually trying to use the bot.
+        $looksLikeCommand = Text::looksLikeCommand($trimmed);
+        $isHelpCommand = (bool)preg_match("/^(help|\\?)$/i", $trimmed);
 
-    if ($visibility !== "direct") {
-        $inReplyToId = (string)($status["in_reply_to_id"] ?? "");
+        if ($visibility !== "direct") {
+            $inReplyToId = (string)($status["in_reply_to_id"] ?? "");
 
-        // If this is a reply to another post and contains a time expression,
-        // treat it as a "remind me of this post" request.
-        if ($inReplyToId !== "" && ($looksLikeCommand || Text::looksLikeTimeExpression($trimmed)) && !$isHelpCommand) {
-            $originalPost = $api->getStatus($inReplyToId);
-            $postUrl = ($originalPost !== null) ? (string)($originalPost["url"] ?? "") : "";
+            // If this is a reply to another post and contains a time expression,
+            // treat it as a "remind me of this post" request.
+            if ($inReplyToId !== "" && ($looksLikeCommand || Text::looksLikeTimeExpression($trimmed)) && !$isHelpCommand) {
+                $originalPost = $api->getStatus($inReplyToId);
+                $postUrl = ($originalPost !== null) ? (string)($originalPost["url"] ?? "") : "";
 
-            $reply = $svc->handleCommand((string)$uid, (string)$acct, $statusId, $trimmed, $postUrl !== "" ? $postUrl : null);
-            if ($reply !== null) {
-                $api->postStatus($reply, "direct", null);
-                $api->postStatus("@{$acct} Got it! I'll send you a reminder via DM.", "public", $statusId);
-            } else {
+                $reply = $svc->handleCommand((string)$uid, (string)$acct, $statusId, $trimmed, $postUrl !== "" ? $postUrl : null);
+                if ($reply !== null) {
+                    $api->postStatus($reply, "direct", null);
+                    $api->postStatus("@{$acct} Got it! I'll send you a reminder via DM.", "public", $statusId);
+                } else {
+                    $api->postStatus(
+                        "@{$acct} I couldn't understand that time expression. Try: 'in 2 days', 'tomorrow at 09:00', 'next monday'.",
+                        "public",
+                        $statusId
+                    );
+                }
+                continue;
+            }
+
+            // Not a reply to a post (or a help command): redirect to DM.
+            $api->postStatus(
+                "Hi @{$acct}, for privacy, please send me a direct message with your reminder command. Example: '@remindme in 2 days about renew domain'. Type 'help' in a DM for full instructions.",
+                "direct",
+                null
+            );
+            // Optionally, still post a public privacy reminder if it looks like a command.
+            if ($looksLikeCommand) {
                 $api->postStatus(
-                    "@{$acct} I couldn't understand that time expression. Try: 'in 2 days', 'tomorrow at 09:00', 'next monday'.",
+                    "@{$acct} For privacy, please send me a direct message. Example: '@remindme in 2 days about renew domain'. Type 'help' in a DM for full instructions.",
                     "public",
                     $statusId
                 );
+                if ($isHelpCommand) {
+                    $reply = $svc->handleCommand((string)$uid, (string)$acct, $statusId, $trimmed);
+                    if ($reply !== null) {
+                        $api->postStatus($reply, "direct", null);
+                    }
+                }
             }
             continue;
         }
 
-        // Not a reply to a post (or a help command): redirect to DM.
-        $api->postStatus(
-            "Hi @{$acct}, for privacy, please send me a direct message with your reminder command. Example: '@remindme in 2 days about renew domain'. Type 'help' in a DM for full instructions.",
-            "direct",
-            null
-        );
-        // Optionally, still post a public privacy reminder if it looks like a command.
-        if ($looksLikeCommand) {
-            $api->postStatus(
-                "@{$acct} For privacy, please send me a direct message. Example: '@remindme in 2 days about renew domain'. Type 'help' in a DM for full instructions.",
-                "public",
-                $statusId
-            );
-            if ($isHelpCommand) {
-                $reply = $svc->handleCommand((string)$uid, (string)$acct, $statusId, $trimmed);
-                if ($reply !== null) {
-                    $api->postStatus($reply, "direct", null);
-                }
-            }
+        $reply = $svc->handleCommand((string)$uid, (string)$acct, $statusId, $plain);
+
+        // If the service returns null, it means "no reply".
+        // We use this to avoid auto-replying with help text when someone just mentions the bot
+        // without actually trying a "remind me ..." command.
+        if ($reply === null) {
+            continue;
         }
-        continue;
+
+        // Reply in the same direct thread
+        $api->postStatus($reply, "direct", $statusId);
+    } catch (\Throwable $e) {
+        fwrite(STDERR, "[poll.php] Error processing notification {$nid}: " . $e->getMessage() . "\n");
     }
-
-    $reply = $svc->handleCommand((string)$uid, (string)$acct, $statusId, $plain);
-
-    // If the service returns null, it means "no reply".
-    // We use this to avoid auto-replying with help text when someone just mentions the bot
-    // without actually trying a "remind me ..." command.
-    if ($reply === null) {
-        continue;
-    }
-
-    // Reply in the same direct thread
-    $api->postStatus($reply, "direct", $statusId);
 }
 
 if ($maxId > 0) {
