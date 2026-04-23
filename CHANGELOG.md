@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-04-23
+
+### Added
+- Natural month-name dates: `on June 15`, `on March 5` are now accepted in addition to `on YYYY-MM-DD`. The date resolves to the next occurrence of that month/day.
+- Written-out numbers in time expressions: `in five minutes`, `in two days`, `in three weeks` now work alongside digit forms like `in 5 minutes`.
+- Dashboard timezone support.
+
+### Fixed
+- `poll.php` silently crashed on any API error (expired token, network failure, HTTP error response), leaving `last_notification_id` frozen and all subsequent messages unprocessed. Errors are now written to stderr so cron captures them, and a failure in one notification no longer aborts the rest of the batch.
+
 ## [0.2.1] - 2026-03-28
 
 - Include original post URL in both the confirmation DM and the reminder DM for post reminders.
