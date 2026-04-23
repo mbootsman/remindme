@@ -59,6 +59,15 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
             <tbody></tbody>
         </table>
     </div>
+    <div class="section">
+        <h2>User Timezones</h2>
+        <table id="timezonesTable">
+            <thead>
+                <tr><th>User</th><th>Timezone</th><th>Updated (UTC)</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
     async function fetchLogs() {
@@ -111,8 +120,17 @@ if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) ||
             `<tr><td>${r.id}</td><td>${r.user_acct}</td><td>${r.task}</td><td>${r.reply_to_post_url ? `<a href="${r.reply_to_post_url}" target="_blank">link</a>` : ''}</td><td>${r.due_at_utc}</td></tr>`
         ).join('');
     }
+    async function renderTimezonesTable() {
+        const res = await fetch('dashboard_timezones.php', { credentials: 'same-origin' });
+        const timezones = await res.json();
+        const tbody = document.querySelector('#timezonesTable tbody');
+        tbody.innerHTML = timezones.map(r =>
+            `<tr><td>${r.user_acct}</td><td>${r.timezone}</td><td>${r.updated_at_utc}</td></tr>`
+        ).join('');
+    }
     renderLogsChart();
     renderRemindersTable();
+    renderTimezonesTable();
     </script>
 </body>
 </html>
