@@ -8,3 +8,4 @@ remindme.code-workspace
 .phpunit.result.cache
 logs/remindme.log
 deploy.sh
+*.old

@@ -79,6 +79,7 @@ final class RemindMeService {
         $nowLocal = CarbonImmutable::now($tz);
 
         $text = trim($input);
+        $text = Text::normalizeWordNumbers($text);
         $text = preg_replace("/^remind\\s+me\\s*/i", "", $text) ?? $text;
         // 1) "in N unit"
         if (preg_match("/\\bin\\s+(\\d+)\\s+(minutes?|hours?|days?|weeks?|months?)\\b/i", $text, $m, PREG_OFFSET_CAPTURE)) {
