@@ -17,6 +17,10 @@ Responsibilities:
   - **other public mentions**: redirect to DM with instructions
 - Reply to the user via a direct message
 
+Error handling:
+- A failed API fetch (network error, expired token, HTTP error) writes to stderr and exits with code 1 so cron captures the failure
+- Errors processing individual notifications are caught and written to stderr; the remaining notifications in the batch continue to be processed and `last_notification_id` is still advanced
+
 State:
 - Reads and updates `state.last_notification_id` in SQLite
 
@@ -62,13 +66,16 @@ Used for:
 - Parsing and display use the user's configured timezone (from user_settings), falling back to DEFAULT_TIMEZONE if not set
 - For relative date-based phrases like "in 2 days", the default time-of-day is the time the reminder was created unless "at ..." is supplied.
 
-## Parsing (MVP)
+## Parsing
 Supported time phrases:
-  - in N minutes/hours/days/weeks/months
+  - in N minutes/hours/days/weeks/months (digits or written numbers: one–twenty, thirty, forty, fifty, sixty)
   - tomorrow
   - next monday..sunday
   - on YYYY-MM-DD
+  - on [month name] [day] (e.g. "on June 15") — resolves to next occurrence of that date
   - optional: at 14:30 / at 2pm / at 2:30pm
+
+Written numbers are normalised to digits by `Text::normalizeWordNumbers()` before pattern matching runs.
 
 More info in [MVP Scope](/docs/mvp.md)
 

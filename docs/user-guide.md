@@ -26,10 +26,13 @@ No task description needed — the post itself is what you will be reminded of.
 Send the bot a DM that mentions it:
 
 - `@remindme in 2 days about renew domain`
+- `@remindme in two days about renew domain`
 - `@remindme in 30 minutes about take a break`
+- `@remindme in five minutes about take a break`
 - `@remindme tomorrow at 09:00 about call the dentist`
 - `@remindme next monday at 10:00 about invoicing`
 - `@remindme on 2026-01-03 at 14:30 about pay invoice`
+- `@remindme on June 15 to look at China strategic oil reserves`
 
 Most Mastodon clients will add `@remindme` for you when you start a DM thread with the bot, so both `@remindme in 2 days…` and `remind me in 2 days…` work.
 
@@ -69,10 +72,11 @@ DM:
 
 ## Supported time syntax (MVP)
 
-- `in N minutes/hours/days/weeks/months`
+- `in N minutes/hours/days/weeks/months` — digits or written numbers (one–twenty, thirty, forty, fifty, sixty)
 - `tomorrow`
 - `next monday..sunday`
 - `on YYYY-MM-DD`
+- `on June 15` / `on March 5` — natural month names, resolves to the next occurrence of that date
 - Optional time: `at 14:30` / `at 2pm` / `at 2:30pm`
 
 All times are interpreted in your configured timezone (set via `set timezone`). If no timezone is set, the server's default (Europe/Amsterdam) is used.
